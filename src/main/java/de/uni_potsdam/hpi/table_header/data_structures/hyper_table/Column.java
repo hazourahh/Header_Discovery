@@ -11,8 +11,6 @@ import java.io.Serializable;
 
 public class Column implements Serializable {
 
-
-
     private String Label; /* Column header */
     private HyperLogLog Values;/* a Hyperloglog representation of the column values */
 
@@ -21,7 +19,7 @@ public class Column implements Serializable {
      * @param label header of the column
      * @param HLLsize size of the hyperloglog representaion
      */
-    public Column(String label, int HLLsize) {
+    Column(String label, int HLLsize) {
         super();
         Label = label;
         Values=new HyperLogLog(HLLsize);
@@ -46,7 +44,7 @@ public class Column implements Serializable {
      * add a value to the hyperloglog
      * @param value a new value of the column
      */
-    public void addValue(Object value) {
+    void addValue(Object value) {
         Values.offer(value);
     }
 

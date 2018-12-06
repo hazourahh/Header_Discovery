@@ -28,9 +28,8 @@ public class Cell {
         return textTokens;
     }
 
-    public String getText() {
-        return text;
-    }
+    String getText() {
+        return text; }
 
     public String getTdHtmlString() {
         return tdHtmlString;

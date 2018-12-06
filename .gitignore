@@ -1,0 +1,9 @@
+/target/
+/out/
+/io/
+/*.zip
+/*.csv
+/*.json
+/*.txt
+/*.iml
+

@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -12,7 +11,8 @@ import java.util.Map;
  */
 public class ResultWriter {
 
-public static boolean NEW_RUN=true;
+private static boolean NEW_RUN=true;
+
     public static void add2Result(String s, Config.Output type) {
         BufferedWriter bw = null;
         FileWriter fw = null;
@@ -55,6 +55,9 @@ public static boolean NEW_RUN=true;
                     break;
                 case HEADERS:
                     out_file_name = Config.HEADERS_FILENAME;
+                    break;
+                case ACSDB:
+                    out_file_name = Config.ACSDB_FILENAME;
                     break;
             }
             File file = new File(out_file_name);
