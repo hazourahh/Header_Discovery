@@ -6,6 +6,8 @@ import de.uni_potsdam.hpi.table_header.data_structures.hyper_table.HTable;
 import de.uni_potsdam.hpi.table_header.io.InputReader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class Main {
@@ -26,16 +28,19 @@ public class Main {
 
             //1. load or build the webtables sketch if it is not created
             calculator.initialize();
+
             //2. load or build schemata statistics
             blinder.initialize();
+
+
             //calculate the similarity between the input table and all the webtables (output result)
-            //TODO: remove saving result in the final product
-             calculator.calculate_similarity(hyper_table,k);
+            //TODO: remove saving result to file in the final product
+            calculator.calculate_similarity(hyper_table,k);
 
             // calculator.getCandidates().print();
-            ArrayList results=new ArrayList();
-            blinder.coherant_blind_candidate(calculator.getCandidates(),results,0,"");
-           results.forEach(System.out::print);
+            Map results=new HashMap<>();
+            blinder.coherant_blind_candidate(calculator.getTopk_Candidates().getUnique_candidates(),results,0,new ArrayList<>());
+
         }
         else
         {System.out.print("No input file");

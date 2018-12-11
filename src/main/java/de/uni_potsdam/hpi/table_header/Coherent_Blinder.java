@@ -9,14 +9,17 @@ import de.uni_potsdam.hpi.table_header.io.InputReader;
 import de.uni_potsdam.hpi.table_header.io.Serializer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
 class Coherent_Blinder {
 
     private ACSDb STATISTICDB=new ACSDb();
+
+    public ACSDb getSTATISTICDB() {
+        return STATISTICDB;
+    }
 
     //filters??
     //TODO : filter long attribute of schemata happens once?
@@ -65,20 +68,23 @@ class Coherent_Blinder {
 
     }
 
-    //TODO: try to prune the search space hear
-    void coherant_blind_candidate(Topk_candidates candidates, List<String> result, int depth, String current)
+
+
+    //TODO: try to prune the search space hear top k-m search idea
+    void coherant_blind_candidate(Set<String>[] candidates, Map<List<String>,Double> result, int depth, List<String> current)
     {
-        List<List<Object>> cand = Arrays.stream(candidates.getCandidates()).map(qu -> Arrays.asList(qu.toArray())).collect(Collectors.toList());
-        if(depth == cand.size())
+        //List<List<String>> cand = Arrays.stream(candidates).map((e->new ArrayList<String>(e)).collect(Collectors.toList());
+        if(depth == candidates.length)
         {
-            result.add(current);
+            result.put(current,STATISTICDB.cohere(current));
             return;
         }
 
-        for(int i = 0; i < cand.get(depth).size(); ++i)
-        {
-            coherant_blind_candidate(candidates, result, depth + 1, current + cand.get(depth).get(i));
+        for(int i = 0; i < candidates[depth].size(); ++i)
+        {   current.add(candidates[depth].iterator().next());
+            coherant_blind_candidate(candidates, result, depth + 1, current );
         }
+
 
     }
 }

@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class WT_Schema implements Serializable {
+    // if it is combo: the entry indicates that a schema with exactly WT_SCHEMA.getSchemaasList attributes was seen in x different tables
+    //else: the entry indicates that the attribute WT_SCHEMA.getSchema was seen in x different tables
+
     private boolean is_combo;
     private String schema;
 
@@ -22,8 +25,10 @@ public class WT_Schema implements Serializable {
         return schema;
     }
 
+
     public List<String> getSchemaasList()
     {return Arrays.stream(schema.split("_"))
+            .map(e->e.replace("-"," "))
             .map(String::trim)
             .collect(Collectors.toList());}
 

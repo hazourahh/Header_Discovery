@@ -59,6 +59,7 @@ public class InputReader {
             db.addSchema(new WT_Schema(type,the_schema)
                     ,Integer.parseInt(freq));
                 }
+
         );
         } catch (IOException e) {
             e.printStackTrace();

@@ -34,7 +34,8 @@ class Similarity_caculator {
 
 
 
-    Topk_candidates getScoredCandidates() {
+
+    Topk_candidates getTopk_Candidates() {
         return candidates;
     }
 
@@ -87,8 +88,9 @@ class Similarity_caculator {
 
         //keep only unique candidates with max score
         //TODO: check if it is a good idea to aggregate the similarity scores
-
+        candidates.unique();
     }
+
 
 
     private void parse_wiki_tables() {
