@@ -7,6 +7,7 @@ import de.uni_potsdam.hpi.table_header.io.InputReader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -39,8 +40,8 @@ public class Main {
 
             // calculator.getCandidates().print();
             Map results=new HashMap<>();
-            blinder.coherant_blind_candidate(calculator.getTopk_Candidates().getUnique_candidates(),results,0,new ArrayList<>());
-
+            List<List<String>>  result= blinder.coherant_blind_candidate(calculator.getTopk_Candidates().getUnique_candidates());
+            result.forEach(System.out::print);
         }
         else
         {System.out.print("No input file");

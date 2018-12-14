@@ -71,20 +71,30 @@ class Coherent_Blinder {
 
 
     //TODO: try to prune the search space hear top k-m search idea
-    void coherant_blind_candidate(Set<String>[] candidates, Map<List<String>,Double> result, int depth, List<String> current)
+  public List<List<String>> coherant_blind_candidate(Set<String>[] list)
     {
-        //List<List<String>> cand = Arrays.stream(candidates).map((e->new ArrayList<String>(e)).collect(Collectors.toList());
-        if(depth == candidates.length)
-        {
-            result.put(current,STATISTICDB.cohere(current));
+        List<List<String>> result = new ArrayList<List<String>>();
+        int numSets = list.length;
+        String[] tmpResult = new String[numSets];
+        cartesian(list, 0, tmpResult, result);
+        return result;
+
+    }
+
+
+   private void cartesian(Set<String>[] list, int n, String[] tmpResult, List<List<String>> result)
+    {
+        if (n == list.length) {
+            if(STATISTICDB.cohere(Arrays.asList(tmpResult))>0.5)
+            {
+                result.add(new ArrayList<String>(Arrays.asList(tmpResult)));
+            }
             return;
         }
 
-        for(int i = 0; i < candidates[depth].size(); ++i)
-        {   current.add(candidates[depth].iterator().next());
-            coherant_blind_candidate(candidates, result, depth + 1, current );
+        for (String i : list[n]) {
+            tmpResult[n] = i;
+            cartesian(list, n + 1, tmpResult, result);
         }
-
-
     }
 }
