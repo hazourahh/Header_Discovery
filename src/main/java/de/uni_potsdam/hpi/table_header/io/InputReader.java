@@ -2,7 +2,6 @@ package de.uni_potsdam.hpi.table_header.io;
 
 import de.uni_potsdam.hpi.table_header.data_structures.hyper_table.HTable;
 import de.uni_potsdam.hpi.table_header.data_structures.statistics_db.ACSDb;
-import de.uni_potsdam.hpi.table_header.data_structures.statistics_db.WT_Schema;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -56,8 +55,11 @@ public class InputReader {
             String type=line.substring(0,first_dash);
             String the_schema=line.substring(first_dash+1,last_equal-1);
             String freq=line.substring(last_equal+1).trim();
-            db.addSchema(new WT_Schema(type,the_schema)
-                    ,Integer.parseInt(freq));
+            //TODO: check if we need the single attributes
+            if(type.equals("combo")) {
+                db.addSchema(the_schema
+                        , Integer.parseInt(freq));
+            }
                 }
 
         );

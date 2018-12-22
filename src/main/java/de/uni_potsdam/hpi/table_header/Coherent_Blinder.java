@@ -1,6 +1,8 @@
 package de.uni_potsdam.hpi.table_header;
 
 
+import de.uni_potsdam.hpi.table_header.data_structures.Result.Header_Candidate;
+import de.uni_potsdam.hpi.table_header.data_structures.Result.Schema_Candidate;
 import de.uni_potsdam.hpi.table_header.data_structures.Result.Topk_candidates;
 
 import de.uni_potsdam.hpi.table_header.data_structures.statistics_db.ACSDb;
@@ -10,12 +12,12 @@ import de.uni_potsdam.hpi.table_header.io.Serializer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 class Coherent_Blinder {
 
     private ACSDb STATISTICDB=new ACSDb();
+    private Topk_candidates candidates;
 
     public ACSDb getSTATISTICDB() {
         return STATISTICDB;
@@ -68,24 +70,27 @@ class Coherent_Blinder {
 
     }
 
-
+    public Topk_candidates getCandidates() {
+        return candidates;
+    }
 
     //TODO: try to prune the search space hear top k-m search idea
-  public List<List<String>> coherant_blind_candidate(Set<String>[] list)
-    {
+  public void coherant_blind_candidate(Set<String>[] list, int k )
+    {  //build permutations
         List<List<String>> result = new ArrayList<List<String>>();
         int numSets = list.length;
         String[] tmpResult = new String[numSets];
         cartesian(list, 0, tmpResult, result);
-        return result;
-
+        candidates=new Topk_candidates(k,1);
+        //caculate top k coherent candidate list
+           result.forEach(e->candidates.add_candidate(0, new Schema_Candidate(e,STATISTICDB.cohere(e))));
     }
 
 
    private void cartesian(Set<String>[] list, int n, String[] tmpResult, List<List<String>> result)
     {
         if (n == list.length) {
-            if(STATISTICDB.cohere(Arrays.asList(tmpResult))>0.5)
+            //if(STATISTICDB.cohere(Arrays.asList(tmpResult))>0.5)
             {
                 result.add(new ArrayList<String>(Arrays.asList(tmpResult)));
             }
