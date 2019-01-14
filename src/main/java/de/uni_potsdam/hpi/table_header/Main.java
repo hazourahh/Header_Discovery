@@ -15,7 +15,7 @@ import java.util.*;
 public class Main {
 
     public static void main(String[] args) {
-        int k=2; //to choose top K candidate
+        int k=5; //to choose top K candidate
         Similarity_caculator calculator = new Similarity_caculator();
         Coherent_Blinder blinder=new Coherent_Blinder();
 
@@ -38,7 +38,7 @@ public class Main {
 
             long stopTime = System.currentTimeMillis();
             long elapsedTime = stopTime - startTime;
-            System.out.println("initalization time:"+elapsedTime);
+            System.out.println("initialization time:"+elapsedTime);
             startTime = System.currentTimeMillis();
 
             //calculate the similarity between the input table and all the webtables (output result)
@@ -50,8 +50,14 @@ public class Main {
             System.out.println("find top k header for each column "+elapsedTime);
             startTime = System.currentTimeMillis();
 
+            ArrayList<String> c= new ArrayList(Arrays.asList("issue","author"));
+            double a=blinder.getSTATISTICDB().get_header_frequency("issue");
+            double b=blinder.getSTATISTICDB().get_header_frequency("author");
+            double ab=blinder.getSTATISTICDB().get_header_pair_frequency("issue","author");
 
-            blinder.coherant_blind_candidate(calculator.get_unique_Topk_Candidates(),100);
+           double x=blinder.getSTATISTICDB().cohere(c);
+
+            blinder.coherant_blind_candidate(calculator.getTopk_Candidates(),10000000);
             stopTime = System.currentTimeMillis();
             elapsedTime = stopTime - startTime;
             System.out.println("find all combinations "+elapsedTime);

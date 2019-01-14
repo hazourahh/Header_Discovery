@@ -23,4 +23,27 @@ public class Header_Candidate extends Candidate {
     public String toString() {
         return "("+header+","+getSimilarity_score()+")";
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!Header_Candidate.class.isAssignableFrom(obj.getClass())) {
+            return false;
+        }
+
+        final Header_Candidate other = (Header_Candidate) obj;
+        if ((this.header== null) ? (other.header != null) : !this.header.equals(other.header)) {
+            return false;
+        }
+
+        if (!this.header.equals(other.header)) {
+            return false;
+        }
+
+        return true;
+    }
+
 }

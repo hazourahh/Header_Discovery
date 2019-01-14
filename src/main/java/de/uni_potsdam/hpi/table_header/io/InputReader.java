@@ -56,7 +56,7 @@ public class InputReader {
             String the_schema=line.substring(first_dash+1,last_equal-1);
             String freq=line.substring(last_equal+1).trim();
             //TODO: check if we need the single attributes
-            if(type.equals("combo")) {
+            if(type.equals("combo") && !the_schema.equals("") && !the_schema.equals(" ")) {
                 db.addSchema(the_schema
                         , Integer.parseInt(freq));
             }

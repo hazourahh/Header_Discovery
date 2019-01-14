@@ -39,9 +39,7 @@ class Similarity_caculator {
         return candidates;
     }
 
-    Set<String>[] get_unique_Topk_Candidates() {
-        return unique_candidates;
-    }
+
 
     /**
      * initialize the Hypertables either by parsing json file or deserialize from previous run
@@ -90,16 +88,17 @@ class Similarity_caculator {
         //update the candidate set to end up with top k result
         HLLWEBTABLES.forEach(table -> findColumnOverlap(inputfile, table));
 
-        //keep only unique candidates with max score
+
         //TODO: check if it is a good idea to aggregate the similarity scores
-        unique_candidates = new HashSet[candidates.getScored_candidates().length];
+        //keep only unique candidates with max score
+       /* unique_candidates = new HashSet[candidates.getScored_candidates().length];
         for ( int i=0;i<candidates.getScored_candidates().length;i++)
         {
             unique_candidates[i] =candidates.getScored_candidates()[i].stream()
                     .map( Header_Candidate.class::cast )
                     .map(e-> e.getHeader()).collect(Collectors.toSet());
 
-        }
+        }*/
     }
 
 
@@ -175,7 +174,7 @@ class Similarity_caculator {
         //table similarity (context similarity)
         table_overlap = findTableOverlap(inputtable, webtable);
 
-        if (table_overlap > 0.3) {
+        if (table_overlap > 0.5) {
             for (int i = 0; i < webtable.getColumns().size(); i++) {
                 for (int j = 0; j < inputtable.getColumns().size(); j++) {
                     web_col = webtable.getColumns().get(i);
@@ -226,6 +225,7 @@ class Similarity_caculator {
 
                     } catch (Exception e) {
                         System.out.println("error in find table" + webtable.getName() + "-" + inputtable.getName());
+                        e.printStackTrace();
                         System.exit(1);
                     }
                 }
