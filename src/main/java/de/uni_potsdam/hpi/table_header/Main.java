@@ -1,7 +1,9 @@
 package de.uni_potsdam.hpi.table_header;
 
 
-import de.uni_potsdam.hpi.table_header.data_structures.Result.Header_Candidate;
+import com.google.common.collect.MinMaxPriorityQueue;
+import de.uni_potsdam.hpi.table_header.data_structures.Result.Candidate;
+import de.uni_potsdam.hpi.table_header.data_structures.Result.Schema_Candidate;
 import de.uni_potsdam.hpi.table_header.data_structures.Result.Topk_candidates;
 import de.uni_potsdam.hpi.table_header.data_structures.hyper_table.HTable;
 import de.uni_potsdam.hpi.table_header.data_structures.wiki_table.WTable;
@@ -9,13 +11,14 @@ import de.uni_potsdam.hpi.table_header.io.Config;
 import de.uni_potsdam.hpi.table_header.io.InputReader;
 import de.uni_potsdam.hpi.table_header.io.ResultWriter;
 
+
 import java.util.stream.Stream;
 
 public class Main {
 
     public static void main(String[] args) {
-        int k=10; //to choose top K candidate for each header
-        int m=10; //to choose top m candidate for each schema
+        int k=5; //to choose top K candidate for each header
+        int m=5; //to choose top m candidate for each schema
 
 
         Similarity_caculator calculator = new Similarity_caculator();
@@ -31,7 +34,6 @@ public class Main {
 //----------------------------------- Testing ---------------------------------
 
         //read the file with missing header into hyper representation
-         //HTable hyper_table=InputReader.read_WT_File(file_name,input_seperator,true);
          Stream<WTable> test_set= InputReader.parse_wiki_tables_object(Config.TESTING_WIKI_FILENAME);
          System.out.println("***Done reading input files with missing headers ***");
 
@@ -44,6 +46,7 @@ public class Main {
                      HTable current= hyper_table.Convert2Hyper();
                      //2- find topk for each header
                      Topk_candidates candidates= calculator.calculate_similarity(current,k);
+
                      /*StringBuilder result = new StringBuilder();
                      for(int i=0;i<candidates.getScored_candidates().length; i++) {
                          result.append(current.get_id().replace(",", " "));
@@ -60,6 +63,21 @@ public class Main {
                      ResultWriter.add2Result(result.toString(), Config.Output.RESULT,"");
                      */
 
+                     blinder.coherant_blind_candidate(candidates,m);
+                     MinMaxPriorityQueue<Candidate> result= blinder.getCandidates().getScored_candidates()[0];
+                     StringBuilder result_text = new StringBuilder();
+                     result.forEach(e->
+                     {  Schema_Candidate cand=(Schema_Candidate) e;
+                         result_text.append(current.get_id().replace(",", " "));
+                         result_text.append(";");
+                         result_text.append(cand.getSimilarity_score());
+                         result_text.append(";[");
+                         result_text.append(String.join("-",cand.getSchema()));
+                         result_text.append(";][");
+                         result_text.append(String.join("-",current.getHeaders()));
+                         result_text.append("]\n");
+                         ResultWriter.add2Result(result_text.toString(), Config.Output.RESULT,"");
+                      });
                   });
 
             //stopTime = System.currentTimeMillis();

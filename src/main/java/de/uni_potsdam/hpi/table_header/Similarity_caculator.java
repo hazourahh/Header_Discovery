@@ -135,7 +135,7 @@ class Similarity_caculator {
         //table similarity (context similarity)
         table_overlap = findTableOverlap(inputtable, webtable);
 
-        if (table_overlap > 0.45)
+        if (table_overlap > Config.table_similarity)
         {
             for (int i = 0; i < webtable.getColumns().size(); i++) {
                 for (int j = 0; j < inputtable.getColumns().size(); j++) {
@@ -158,7 +158,7 @@ class Similarity_caculator {
                     //caculate the overlap and add results
                     weighted_overlap = overlap * table_overlap; //comment this to go back to pure jaccard
                     try {
-                        if (//weighted_overlap > 0.5 &&
+                        if (    weighted_overlap > Config.column_similarity &&
                                 web_col.getLabel() != null &&
                                 input_col.getLabel() != null &&
                                 //this.Name !=NULL &&

@@ -49,4 +49,9 @@ public class Config {
 
 //HLL length
   public static int HLLsize=8;
+
+  //Similarity Thresholds
+    public static double table_similarity=0.45;
+    public static double column_similarity=0;
+
 }
