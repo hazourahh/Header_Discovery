@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 public class Topk_candidates {
    private MinMaxPriorityQueue<Candidate>[] candidates;
 
-
     public Topk_candidates(int k, int numcol) {
 
         candidates=new  MinMaxPriorityQueue[numcol];
@@ -27,8 +26,6 @@ public class Topk_candidates {
         return candidates;
     }
 
-
-
     public void add_candidate(int col_index, Candidate can)
     {       Candidate current  =  candidates[col_index].stream().filter(x -> x.equals(can)).findFirst().orElse(null);
             if (current!=null) {
@@ -37,8 +34,6 @@ public class Topk_candidates {
        candidates[col_index].add(can);
 
     }
-
-
 
     public void print()
     {

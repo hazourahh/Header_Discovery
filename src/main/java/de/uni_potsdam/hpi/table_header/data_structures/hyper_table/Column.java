@@ -39,7 +39,7 @@ public class Column implements Serializable {
     public HyperLogLog getValues() {
         return Values;
     }
-
+//--------------------------------------------------------------------------
     /**
      * add a value to the hyperloglog
      * @param value a new value of the column

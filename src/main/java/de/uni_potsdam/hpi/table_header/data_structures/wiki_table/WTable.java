@@ -1,12 +1,12 @@
 package de.uni_potsdam.hpi.table_header.data_structures.wiki_table;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import de.uni_potsdam.hpi.table_header.data_structures.hyper_table.HTable;
 import de.uni_potsdam.hpi.table_header.io.Config;
-
+import org.apache.commons.lang.StringUtils;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -40,11 +40,11 @@ public class WTable implements Serializable {
         return _id;
     }
 
-    int getNumCols() {
+    public int getNumCols() {
         return numCols;
     }
 
-    int getNumDataRows() {
+    public int getNumDataRows() {
         return numDataRows;
     }
 
@@ -52,7 +52,7 @@ public class WTable implements Serializable {
         return numHeaderRows;
     }
 
-    int[] getNumericColumns() {
+    public int[] getNumericColumns() {
         return numericColumns;
     }
 
@@ -80,8 +80,14 @@ public class WTable implements Serializable {
         return tableHeaders;
     }
 
-    public int getTableId() { return tableId; }
-
+    public int getTableId() {
+        return tableId;
+    }
+//--------------------------------------------------------------------------
+    /***
+     *
+     * @return table caption as a name or section title if no caption
+     */
     public String getTableName() {
         String table_name;
         if (getTableCaption() == null)
@@ -91,27 +97,66 @@ public class WTable implements Serializable {
         return table_name;
     }
 
+    /***
+     *
+     * @param withheader
+     * @return
+     */
+    private String getTableAsCSV(boolean withheader) {
+        String thefile = "";
+        if (withheader)
+            thefile = String.join(",", getHeaders()) + "\n";
+        thefile += tableData.stream()
+                .map(row -> String.join(",", row.stream().map(Cell::getText).collect(Collectors.toList())))
+                .collect(Collectors.joining("\n"));
+        return thefile;
+
+    }
+
+    /***
+     *   write the current table in csv representation
+     * @param withheader rite header line or not
+     */
     public void saveAsCSV(boolean withheader) {
 
         File directory = new File(Config.TABLEASCSV_Folder);
 
         if (!directory.exists())
-           directory.mkdir();
+            directory.mkdir();
 
-            File file = new File(Config.TABLEASCSV_Folder + getTableName() + ".csv");
-            if (!file.exists()) {
-                try {
-                    boolean created = file.createNewFile();
-                    if (created) {
-                        BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile(), true));
-                        bw.write(getTableAsCSV(withheader));
-                        bw.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+        File file = new File(Config.TABLEASCSV_Folder + getTableName() + ".csv");
+        if (!file.exists()) {
+            try {
+                boolean created = file.createNewFile();
+                if (created) {
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile(), true));
+                    bw.write(getTableAsCSV(withheader));
+                    bw.close();
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+        }
 
+    }
+
+    /***
+     *
+     * @return the Hyper table representation of the web table
+     */
+    public HTable Convert2Hyper() {
+
+        HTable hyper_table = new HTable(get_id(),getTableName(), getHeaders(), Config.HLLsize);
+        for (int i = 0; i < hyper_table.getNumberCols(); i++) {
+            Set column_value = getColumnValues(i);
+            if (column_value.size() == 0) {
+                hyper_table.removeColumn(i);
+            } else
+                for (Object value : column_value) {
+                    hyper_table.add2Column(i, value);
+                }
+        }
+        return hyper_table;
     }
 
     /**
@@ -138,7 +183,7 @@ public class WTable implements Serializable {
 
     /**
      * @param col index of the column
-     * @return the values of this column except empty and numeric values
+     * @return the distinct non empty values of this column
      */
     public Set getColumnValues(int col) {
         // TODO: note that we eliminate any repetition here!
@@ -150,7 +195,6 @@ public class WTable implements Serializable {
                 String value = tableData.get(i).get(col).getText();
                 // TODO: we can filter other types of null in here
                 // "" and " " filtered
-                // no numeric columns
                 if (value != null && !value.equals("") && !value.equals(" "))// && !tableData.get(i).get(col).isNumeric())
                     col_vales.add(value);
             }
@@ -158,18 +202,44 @@ public class WTable implements Serializable {
         return col_vales;
     }
 
+    /***
+     *
+     * @return return string JSON representation of this table
+     */
+    public String convert2JSON() {
+        GsonBuilder builder = new GsonBuilder();
+        builder.serializeNulls();
+        Gson gson = builder.create();
+        return gson.toJson(this);
+    }
 
-    private String getTableAsCSV(boolean withheader) {
-     String thefile="";
-     if (withheader)
-         thefile=String.join(",",getHeaders())+"\n";
-      thefile+= tableData.stream()
-                  .map(row-> String.join(",",row.stream().map(Cell::getText).collect(Collectors.toList())))
-        .collect(Collectors.joining("\n"));
+    /***
+     *
+     * @return true if one at least of the labels is missing
+     */
+    public boolean has_missing_header() {
+        //TODO: if you added any null representation update here
+        boolean null_seen = false;
 
+        for (String Value : getHeaders()) if (StringUtils.isBlank(Value)) null_seen = true;
 
-        return thefile;
+        return null_seen;
+    }
 
+    /***
+     *
+     * @return true if the table has a missing header line
+     */
+    public boolean has_missing_header_line() {
+        //TODO: if you added any null representation update here
+        boolean non_null_seen = false;
+
+        for (String Value : getHeaders()) {
+            if (!StringUtils.isBlank(Value)) {
+                non_null_seen = true;
+            }
+        }
+        return !non_null_seen;
     }
 
     @Override
@@ -181,5 +251,33 @@ public class WTable implements Serializable {
                 getHeaders() +
                 "\r\n";
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!WTable.class.isAssignableFrom(obj.getClass())) {
+            return false;
+        }
+
+        final WTable other = (WTable) obj;
+        if ((this._id== null) ? (other._id != null) : !this._id.equals(other._id)) {
+            return false;
+        }
+
+        if (!this._id.equals(other._id)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return _id.hashCode();
+    }
+
 }
 

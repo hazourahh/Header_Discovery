@@ -6,19 +6,22 @@ public class Config {
 
    //folders
     public static String inputFolderPath = "data" + File.separator ;
-    private static String measurementsFolderPath;
+    public static String measurementsFolderPath;
 
     static {
         measurementsFolderPath = "io" + File.separator;
     }
 
     //input
-    public static final String INPUT_WIKI_FILENAME = "tables.json";
-    public static final String INPUT_test_FOLDER = "table.json";
+    public static final String FULL_WIKI_FILENAME = "tables.json";
+   // public static final String FULL_WIKI_FILENAME = "table-small.json";
+
+    public static final String TRAINING_WIKI_FILENAME = "tables_train.json";
+    public static final String TESTING_WIKI_FILENAME = "table_test.json";
     public static final String Input_acsdb_file="acsdb.txt";
 
    //results
-   public enum Output {RESULT,SCHEMATA,NUMERC_NON,STATISTIC,WIDTH,LENGTH,NUMERIC,NON_NUMERIC,TABLES_MISSING_HEADERS,HEADERS,ACSDB,TABLEASCSV}
+   public enum Output {RESULT,SCHEMATA,NUMERC_NON,STATISTIC,WIDTH,LENGTH,NUMERIC,NON_NUMERIC,TABLES_MISSING_HEADERS,HEADERS,ACSDB,TABLEASCSV,TEST_SET,TRAIN_SET}
    public static final String ACSDB_FILENAME = Config.measurementsFolderPath+"acsdb";
   static final String Results_FILENAME;
   static final String HEADERS_FILENAME;

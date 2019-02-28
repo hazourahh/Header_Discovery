@@ -1,34 +1,42 @@
 package de.uni_potsdam.hpi.table_header.data_structures.statistics_db;
 
 import com.clearspring.analytics.stream.membership.BloomFilter;
+import de.uni_potsdam.hpi.table_header.io.Config;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.store.FSDirectory;
 
+import javax.swing.text.Document;
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 
 public class ACSDb implements Serializable {
 
     /***
      * Statistics about general WebTabeles schema use.
      */
-
+    //cashing
     private ArrayList<Schema_statistic> db = new ArrayList<>();
     private Map<String, Integer> frequency_cash;
     private int TOTAL_SUM_ALL_COUNT = 0;   // to calculate probability
 
-    //TODO: you cann add other schemata from another sources
+    //TODO: you can add other schemata from another sources
 
 
     public ACSDb() {
         frequency_cash=new HashMap<>();
     }
 
-
-
+//--------------------------------------------
     public void addSchema(String schema, int occuerance) {
-        //TODO: add an preprocessing here
+        //TODO: add any preprocessing here
 
        Schema_statistic new_sch=new Schema_statistic(schema,occuerance);
             db.add(new_sch);

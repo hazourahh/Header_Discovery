@@ -2,10 +2,9 @@ package de.uni_potsdam.hpi.table_header.data_structures.wiki_table;
 
 import de.uni_potsdam.hpi.table_header.io.Config;
 import de.uni_potsdam.hpi.table_header.io.ResultWriter;
-import org.apache.commons.lang.StringUtils;
-
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 public class Wiki_Dataset_Statistics {
 
@@ -18,11 +17,13 @@ public class Wiki_Dataset_Statistics {
     private static  Map<Integer, Integer> TABLES_WIDTH = new HashMap<>();// distribution of number of columns (attributes) per table
     private static Map<Integer, Integer> TABLES_NUMERIC_COLUMNS = new HashMap<>();// distribution of number of numeric columns (attributes) per table
     private static Map<Integer, Integer> TABLES_NON_NUMERIC_COLUMNS = new HashMap<>();// distribution of number of non-numeric columns (attributes) per table
+    private static String FILE_NAME;
 
-    public void update_statistics(WTable table, String line) {
 
+    public void update_statistics(WTable table, String file_name) {
+        FILE_NAME=file_name;
         NUMBER_OF_TABLES++;
-
+        boolean nullable=false;
         int numeric_col = table.getNumericColumns().length;
         int col = table.getNumCols();
 
@@ -42,30 +43,18 @@ public class Wiki_Dataset_Statistics {
         //ResultWriter.add2Result();
 
         //6-schema with table name
-        ResultWriter.add2Result(table.toString(), Config.Output.SCHEMATA);
+        ResultWriter.add2Result(table.toString(), Config.Output.SCHEMATA,FILE_NAME);
 
         //7-number of tables with null headers
         //8-number of tables with some nulls in header
         //9-tables with null headers as json write to disk
-        //TODO: if you added any null representation update here
-        boolean null_seen=false;
-        boolean non_null_seen=false;
-
-        for(String Value:table.getHeaders())
-        {
-            if(StringUtils.isBlank(Value))
-            {null_seen=true;}
-            else
-            {non_null_seen=true;}
+        if (table.has_missing_header())
+        {NUM_NULL_IN_HEADER++;
         }
-        if (null_seen)
-            NUM_NULL_IN_HEADER++;
-        if(!non_null_seen) {
+        if(table.has_missing_header_line()) {
             NUM_NULL_HEADERS++;
-            ResultWriter.add2Result(line+"\r\n",Config.Output.TABLES_MISSING_HEADERS);
+            ResultWriter.add2Result(table.convert2JSON()+"\r\n",Config.Output.TABLES_MISSING_HEADERS,FILE_NAME);
         }
-
-
     }
 
     private void update_map(int new_value, Map<Integer, Integer> map) {
@@ -78,18 +67,26 @@ public class Wiki_Dataset_Statistics {
     }
 
     public void save_statistics() {
-
-
         String result = "Tables : " + NUMBER_OF_TABLES + "\r\n" +
                 "NULL HEADERs: " + NUM_NULL_HEADERS + "\r\n" +
                 "NULL in header: " + NUM_NULL_IN_HEADER + "\r\n";
-        ResultWriter.add2Result(result, Config.Output.STATISTIC);
-        ResultWriter.add2Result(TABLES_LENGTH, Config.Output.LENGTH);
-        ResultWriter.add2Result(TABLES_WIDTH, Config.Output.WIDTH);
-        ResultWriter.add2Result(TABLES_NUMERIC_COLUMNS, Config.Output.NUMERIC);
-        ResultWriter.add2Result(TABLES_NON_NUMERIC_COLUMNS, Config.Output.NON_NUMERIC);
+        ResultWriter.add2Result(result, Config.Output.STATISTIC,FILE_NAME);
+        ResultWriter.add2Result(TABLES_LENGTH, Config.Output.LENGTH,FILE_NAME);
+        ResultWriter.add2Result(TABLES_WIDTH, Config.Output.WIDTH,FILE_NAME);
+        ResultWriter.add2Result(TABLES_NUMERIC_COLUMNS, Config.Output.NUMERIC,FILE_NAME);
+        ResultWriter.add2Result(TABLES_NON_NUMERIC_COLUMNS, Config.Output.NON_NUMERIC,FILE_NAME);
 
     }
 
+public int getMax_Length()
+{return TABLES_LENGTH.keySet().stream().mapToInt(v -> v).max().orElseThrow(NoSuchElementException::new); }
 
+public int getMax_Width()
+{return TABLES_WIDTH.keySet().stream().mapToInt(v -> v).max().orElseThrow(NoSuchElementException::new);}
+
+public int getMax_Num_Numericcols()
+{return TABLES_NUMERIC_COLUMNS.keySet().stream().mapToInt(v -> v).max().orElseThrow(NoSuchElementException::new);}
+
+public int get_NumTables()
+{return NUMBER_OF_TABLES;}
 }

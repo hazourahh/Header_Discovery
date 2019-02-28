@@ -39,7 +39,6 @@ class Coherent_Blinder {
 
             // store acsdb
             store_ACSDB();
-
             System.out.println("***done building acsdb***");
 
         } catch (IOException e) {
@@ -80,10 +79,11 @@ class Coherent_Blinder {
         int numcols = list.getScored_candidates().length;
         String[] tmpResult = new String[numcols];
         cartesian(list, 0, tmpResult, result);
+        //result.forEach(e->{e.forEach(s->{System.out.print(s+" ");}); System.out.println();});
         schema_candidates=new Topk_candidates(k,1);
         //caculate top k coherent candidate list
-          // result.forEach(e->schema_candidates.add_candidate(0, new Schema_Candidate(e,STATISTICDB.cohere(e))));
-        result.forEach(e->schema_candidates.add_candidate(0, new Schema_Candidate(e,1)));
+        result.forEach(e->schema_candidates.add_candidate(0, new Schema_Candidate(e,STATISTICDB.cohere(e))));
+       // result.forEach(e->schema_candidates.add_candidate(0, new Schema_Candidate(e,1)));
     }
 
 

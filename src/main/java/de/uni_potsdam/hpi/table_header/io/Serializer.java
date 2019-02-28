@@ -1,11 +1,6 @@
 package de.uni_potsdam.hpi.table_header.io;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+
+import java.io.*;
 
 public class Serializer {
     /**
