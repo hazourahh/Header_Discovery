@@ -14,8 +14,6 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
-
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,7 +24,10 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+/**
+ * @author Hazar Harmouch
+ *
+ */
 public class InputReader {
     //read csv file
     private static List<List<String>> read_CSV_File(String Filename, String seperator) {
@@ -40,8 +41,7 @@ public class InputReader {
         return values;
     }
 
-    //----------------------
-    //read a input file as a hypertable
+    //-------------------------------Pars input ----------------------------------
     public static HTable read_WT_File(String Filename, String seperator, boolean has_header) {
         List<List<String>> values = read_CSV_File(Filename, seperator);
         int numcols = values.get(0).size();
@@ -75,34 +75,11 @@ public class InputReader {
         return builder.build();
     }
 
-    //----------------------------------------------------------------
-    //parse ACSDB file into ACSDB representation
-   /* public static ACSDb read_ACSDB_File(String Filename) {
-        ACSDb db = new ACSDb();
-        //TODO: filter to reduce size
-        try (Stream<String> lines = Files.lines(Paths.get(Filename))) {
-            lines.forEach(line -> {
-                        int first_dash = line.indexOf('_');
-                        int last_equal = line.lastIndexOf('=');
-                        String type = line.substring(0, first_dash);
-                        String the_schema = line.substring(first_dash + 1, last_equal - 1);
-                        String freq = line.substring(last_equal + 1).trim();
-                        //TODO: check if we need the single attributes
-                        if (type.equals("combo") && !the_schema.equals("") && !the_schema.equals(" ")) {
-                            db.addSchema(the_schema
-                                    , Integer.parseInt(freq));
-                        }
-                    }
-
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-
-        return db;
-    }*/
-
+    //-------------------------------ACSDB----------------------------------------
+    /**
+     *  parse ACSDB file and build a lucene index of it
+     * @param Filename ACSDB file
+     */
     public static void build_ACSDB_index(String Filename) {
 
         try {
@@ -110,16 +87,16 @@ public class InputReader {
             File indexpath = new File(Config.index_Folder);
             indexpath.mkdirs();
             Directory dir = FSDirectory.open(indexpath);
-            Analyzer analyzer= new WhitespaceAnalyzer(Version.LUCENE_44);
-            IndexWriterConfig iwc=new IndexWriterConfig(Version.LUCENE_44,analyzer);
+            Analyzer analyzer = new WhitespaceAnalyzer(Version.LUCENE_44);
+            IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_44, analyzer);
 
             //create a new index in the directory and remove any previous indexed docs
             iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
-            IndexWriter writer=new IndexWriter(dir,iwc);
+            IndexWriter writer = new IndexWriter(dir, iwc);
 
             //pasrs ACSDB and add schemata to the index
-        //TODO: filter to reduce size
-        Stream<String> lines = Files.lines(Paths.get(Filename));
+            //TODO: filter to reduce size
+            Stream<String> lines = Files.lines(Paths.get(Filename));
             lines.forEach(line -> {
                         int first_dash = line.indexOf('_');
                         int last_equal = line.lastIndexOf('=');
@@ -128,18 +105,18 @@ public class InputReader {
                         String freq = line.substring(last_equal + 1).trim();
                         //TODO: check if we need the single attributes
                         if (type.equals("combo") && !the_schema.equals("") && !the_schema.equals(" ")) {
-                            Document doc=new Document();
-                           String processed_schema= Arrays.stream(the_schema.split("_"))
+                            Document doc = new Document();
+                            String processed_schema = Arrays.stream(the_schema.split("_"))
                                     .map(e -> e.replaceAll("[\\]\\[(){},.;:!?<>%\\-*]", " "))
                                     .map(String::trim)
                                     .map(String::toLowerCase)
-                                    .map(e -> e.replaceAll(" ","_"))
-                                    .collect(Collectors.joining( " " ));
+                                    .map(e -> e.replaceAll(" ", "_"))
+                                    .collect(Collectors.joining(" "));
 
-                            doc.add(new TextField(Palmetto.DEFAULT_TEXT_INDEX_FIELD_NAME,processed_schema,TextField.Store.YES));
-                            try{
+                            doc.add(new TextField(Palmetto.DEFAULT_TEXT_INDEX_FIELD_NAME, processed_schema, TextField.Store.YES));
+                            try {
                                 //add the document n time where n is the frequency of this schema
-                                for(int i=0;i<Integer.parseInt(freq);i++)
+                                for (int i = 0; i < Integer.parseInt(freq); i++)
                                     writer.addDocument(doc);
                             } catch (IOException e) {
                                 e.printStackTrace();
@@ -161,7 +138,13 @@ public class InputReader {
 
     }
 
-    //----------------------------------------------------------------
+    //-------------------------------WIKI Web Tables---------------------------------
+
+    /**
+     *
+     * @param file  path to wiki table json file
+     * @return a stream of web tables objects
+     */
     public static Stream<WTable> parse_wiki_tables_object(String file) {
         GsonBuilder builder = new GsonBuilder();
         builder.setPrettyPrinting().serializeNulls();
@@ -188,6 +171,11 @@ public class InputReader {
         return wiki_objects_stream.distinct();
     }
 
+    /**
+     *
+     * @param file path to wiki table json file
+     * @return a stream of strings of json objects
+     */
     public static Stream<String> parse_wiki_tables_file(String file) {
         Stream<String> stream = null;
         try {

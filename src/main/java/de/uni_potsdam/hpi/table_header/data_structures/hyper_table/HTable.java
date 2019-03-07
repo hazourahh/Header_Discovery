@@ -116,4 +116,10 @@ public class HTable implements Serializable {
         return true;
     }
 
+
+    @Override
+    public int hashCode() {
+        return _id.hashCode();
+    }
+
 }

@@ -1,5 +1,8 @@
 package de.uni_potsdam.hpi.table_header.data_structures.Result;
-
+/**
+ * @author Hazar Harmouch
+ *
+ */
 public abstract class Candidate {
 
     private double similarity_score;

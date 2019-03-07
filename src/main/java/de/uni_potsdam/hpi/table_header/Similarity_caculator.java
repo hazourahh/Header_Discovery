@@ -23,15 +23,19 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+/**
+ * @author Hazar Harmouch
+ *
+ */
 class Similarity_caculator {
 
 
     private ArrayList<HTable> HLLWEBTABLES = new ArrayList<>(); //web tables in hyperloglog form
     private Topk_candidates candidates;
-    private int number_tables = 1652771;
-     //private int number_tables=45;
+    private int number_tables = 1652771;  //TODO: remove this to config
+    //private int number_tables=45;
 
+//------------------------------------------------------------------------------------
     /**
      * initialize the Hypertables either by parsing json file or deserialize from previous run
      */
@@ -47,6 +51,7 @@ class Similarity_caculator {
 
             //if we have the full corpus we build testing dataset and then convert to Hyper representation the rest
             if (full_corpus) {
+
                 //1- parse full web table corpus
                 HashSet<String> Tables_Supplier =  InputReader.parse_wiki_tables_file(Config.FULL_WIKI_FILENAME).collect(Collectors.toCollection(HashSet::new));
 
@@ -93,13 +98,24 @@ class Similarity_caculator {
         }
     }
 
+    private void store_HTables() {
+        try {
+            Serializer.serialize(HLLWEBTABLES, Config.HYPERTABLE_FILENAME);
+        } catch (IOException e) {
+            System.err.println("Could not save the hypertables to the disk");
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+    }
+
+    //---------------------------- Similarity search----------------------------------
     /**
      * find the top k candidate for each column in the input table
      *
      * @param inputfile impute table represented as hyper table with dumy headers
      * @param k         top k candidate to keep
      */
-
     Topk_candidates calculate_similarity(HTable inputfile, int k) {
         //topk for each column
         candidates = new Topk_candidates(k, inputfile.getNumberCols());
@@ -111,18 +127,6 @@ class Similarity_caculator {
 
         return candidates;
         //TODO: check if it is a good idea to aggregate the similarity scores
-    }
-
-
-    private void store_HTables() {
-        try {
-            Serializer.serialize(HLLWEBTABLES, Config.HYPERTABLE_FILENAME);
-        } catch (IOException e) {
-            System.err.println("Could not save the hypertables to the disk");
-            e.printStackTrace();
-            System.exit(1);
-        }
-
     }
 
     /**
@@ -160,7 +164,7 @@ class Similarity_caculator {
                         e.printStackTrace();
                         System.exit(1);
                     }
-                    //caculate the overlap and add results
+                    //calculate the overlap and add results
                     weighted_overlap = overlap * table_overlap; //comment this to go back to pure jaccard
                     try {
                         if (    weighted_overlap > Config.column_similarity &&
@@ -252,6 +256,8 @@ class Similarity_caculator {
 
     }
 
+    //---------------------------------------- collect statistics-------------------------
+
     public Wiki_Dataset_Statistics calculate_wiki_tables_statistics(Stream<WTable> tables, String dataset) {
         Wiki_Dataset_Statistics statistic = new Wiki_Dataset_Statistics();
 
@@ -265,8 +271,7 @@ class Similarity_caculator {
         return statistic;
     }
 
-
-    //TODO: remove the numbers to Config
+    //------------------------------------------------- Sampling---------------------------
     public Set<WTable> get_strtifiedSample_wiki_tables(Supplier<Stream<WTable>> tables, int sample_percent) {
         int Size_of_entire_population = 1652771;
         int max_length = 1523;

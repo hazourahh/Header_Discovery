@@ -1,7 +1,10 @@
 package de.uni_potsdam.hpi.table_header.io;
 
 import java.io.*;
-
+/**
+ * @author Hazar Harmouch
+ *
+ */
 public class Serializer {
     /**
      * deserialize to Object from given file. We use the general Object so as that it can work for any Java Class.

@@ -12,13 +12,14 @@ import de.uni_potsdam.hpi.table_header.io.InputReader;
 import de.uni_potsdam.hpi.table_header.io.ResultWriter;
 import org.aksw.palmetto.aggregation.ArithmeticMean;
 import org.aksw.palmetto.calculations.direct.FitelsonConfirmationMeasure;
-import org.aksw.palmetto.calculations.direct.LogCondProbConfirmationMeasure;
 import org.aksw.palmetto.subsets.OneOne;
-import org.aksw.palmetto.subsets.OnePreceding;
 
 
 import java.util.stream.Stream;
-
+/**
+ * @author Hazar Harmouch
+ *
+ */
 public class Main {
 
     public static void main(String[] args) {
@@ -138,28 +139,7 @@ public class Main {
 
             //stopTime = System.currentTimeMillis();
            // elapsedTime = stopTime - startTime;
-           // System.out.println("find top k header for each column "+elapsedTime);
            // startTime = System.currentTimeMillis();
-//-------------------------------------------------------------------------------------------
-
-            /*ArrayList<String> c= new ArrayList(Arrays.asList("issue","author"));
-            double a=blinder.getSTATISTICDB().get_header_frequency("issue");
-            double b=blinder.getSTATISTICDB().get_header_frequency("author");
-            double ab=blinder.getSTATISTICDB().get_header_pair_frequency("issue","author");
-           double x=blinder.getSTATISTICDB().cohere(c);
-*/
-            //blinder.coherant_blind_candidate(calculator.getTopk_Candidates(),10);
-            //stopTime = System.currentTimeMillis();
-           // elapsedTime = stopTime - startTime;
-           // System.out.println("find all combinations "+elapsedTime);
-           // startTime = System.currentTimeMillis();
-           // MinMaxPriorityQueue<Candidate> result= blinder.getCandidates().getScored_candidates()[1];
-           // result.forEach(System.out::println);
-            // stopTime = System.currentTimeMillis();
-            // elapsedTime = stopTime - startTime;
-           // System.out.println("find the coherance of one compination "+elapsedTime);
-            //Arrays.stream(result).forEach();
-       // }
 
     }
 

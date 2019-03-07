@@ -1,5 +1,9 @@
 package de.uni_potsdam.hpi.table_header.data_structures.Result;
 
+/**
+ * @author Hazar Harmouch
+ */
+
 public class Header_Candidate extends Candidate {
     private String header;
 
@@ -19,7 +23,7 @@ public class Header_Candidate extends Candidate {
 
     @Override
     public String toString() {
-        return "("+header+","+getSimilarity_score()+")";
+        return "(" + header + "," + getSimilarity_score() + ")";
     }
 
     @Override
@@ -33,7 +37,7 @@ public class Header_Candidate extends Candidate {
         }
 
         final Header_Candidate other = (Header_Candidate) obj;
-        if ((this.header== null) ? (other.header != null) : !this.header.equals(other.header)) {
+        if ((this.header == null) ? (other.header != null) : !this.header.equals(other.header)) {
             return false;
         }
 

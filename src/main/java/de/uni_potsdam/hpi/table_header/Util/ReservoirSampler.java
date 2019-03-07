@@ -1,17 +1,18 @@
 package de.uni_potsdam.hpi.table_header.Util;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
+/**
+ * Random sampler
+ *
+ * @param <T>
+ */
 public class ReservoirSampler<T> implements Collector<T, List<T>, List<T>> {
     final Random rand = new SecureRandom();
     final int sz;
@@ -24,8 +25,7 @@ public class ReservoirSampler<T> implements Collector<T, List<T>, List<T>> {
     private void addIt(final List<T> in, T s) {
         if (in.size() < sz) {
             in.add(s);
-        }
-        else {
+        } else {
             int replaceInIndex = (int) (rand.nextDouble() * (sz + (c++) + 1));
             if (replaceInIndex < sz) {
                 in.set(replaceInIndex, s);

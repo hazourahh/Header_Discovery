@@ -5,7 +5,10 @@ import de.uni_potsdam.hpi.table_header.io.ResultWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-
+/**
+ * @author Hazar Harmouch
+ *
+ */
 public class Wiki_Dataset_Statistics {
 
     //statistics

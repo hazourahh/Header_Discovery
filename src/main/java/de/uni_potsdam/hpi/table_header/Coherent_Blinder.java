@@ -25,44 +25,41 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-
+/**
+ * @author Hazar Harmouch
+ *
+ */
 
 class Coherent_Blinder {
 
-    //private ACSDb STATISTICDB=new ACSDb();
 
     private Topk_candidates schema_candidates;
     private Coherence coherence;
-
-    /* public ACSDb getSTATISTICDB() {
-        return STATISTICDB;
-    }*/
+    public Topk_candidates getCandidates() {
+        return schema_candidates;
+    }
 
     //filters??
     //TODO : filter long attribute of schemata happens once?
 
-
+    /***
+     *   build inverted index and coherence measure to evaluate the coherence of the schema candidates
+      * @param segmentation
+     * @param confirmation
+     * @param aggregation
+     */
     void initialize(Segmentator segmentation, DirectConfirmationMeasure confirmation, Aggregation aggregation) {
 
-        try {
-            // STATISTICDB= (ACSDb) Serializer.deserialize(Config.ACSDB_FILENAME);
-            File indexpath = new File(Config.index_Folder);
-            IndexReader reader = DirectoryReader.open(FSDirectory.open(indexpath));
-            //IndexSearcher searcher=new IndexSearcher(reader);
-            //Analyzer analyzer= new WhitespaceAnalyzer();
-            // QueryParser pars=
-            reader.close();
-
-
-            System.out.println("***acsdb index exists***");
+        try { //check if the index already there
+               File indexpath = new File(Config.index_Folder);
+                IndexReader reader = DirectoryReader.open(FSDirectory.open(indexpath));
+                reader.close();
+                System.out.println("***acsdb index exists***");
 
         } catch (FileNotFoundException e) {
 
-            //parse acsdb
-            //STATISTICDB=parse_ACSDb();
+            //parse acsdb and build an index
             InputReader.build_ACSDB_index(Config.Input_acsdb_file);
-            // store acsdb
-            //store_ACSDB();
             System.out.println("***done building acsdb index***");
 
         } catch (IOException e) {
@@ -71,6 +68,7 @@ class Coherent_Blinder {
             System.exit(1);
         }
         try {
+            //build a coherence object based on the input
             CorpusAdapter corpusAdapter = LuceneCorpusAdapter.create(Config.index_Folder, Palmetto.DEFAULT_TEXT_INDEX_FIELD_NAME);
             coherence = new DirectConfirmationBasedCoherence(segmentation,
                     BooleanDocumentProbabilitySupplier.create(corpusAdapter, "bd", true),
@@ -87,34 +85,11 @@ class Coherent_Blinder {
 
     }
 
-
 //----------------------------------------------------------------
 
-    public Topk_candidates getCandidates() {
-        return schema_candidates;
-    }
-
-
-//----------------------------------------------------------------
-    //TODO: try to prune the search space here top k-m search idea
-     /*private ACSDb parse_ACSDb()
-    {
-        return InputReader.read_ACSDB_File(Config.Input_acsdb_file);
-    }*/
-
-   /* private void store_ACSDB() {
-        try {
-            Serializer.serialize(STATISTICDB, Config.ACSDB_FILENAME);
-        } catch (IOException e) {
-            System.err.println("Could not save the ACSDB to the disk");
-            e.printStackTrace();
-            System.exit(1);
-        }
-
-    }*/
 
     public void coherant_blind_candidate(Topk_candidates candidates, int k) {
-        //build permutations
+        //build permutations and process all strings to have _ instead space to mach the index
         List<List<String>> candidates_list=new ArrayList<>();
         for(int i=0;i<candidates.getScored_candidates().length;i++)
         {
@@ -131,11 +106,8 @@ class Coherent_Blinder {
         }
         List<List<String>> result= Lists.cartesianProduct(candidates_list).stream().filter(e->containsUnique(e)).distinct().collect(Collectors.toList());
 
-       // String[] tmpResult = new String[candidates.getScored_candidates().length];
-       // cartesian(candidates, 0, tmpResult, result);
 
-
-        // process all strings to have _ instead space to mach the index
+        // convert to palmeto input
         int i = 0;
         String[][] candidate_array = new String[result.size()][];
         for (List<String> schema_candidate : result) {
@@ -144,7 +116,6 @@ class Coherent_Blinder {
         }
 
         //caculate top k coherent candidate list
-        //result.forEach(e->schema_candidates.add_candidate(0, new Schema_Candidate(e,STATISTICDB.cohere(e))));
         schema_candidates = new Topk_candidates(k, 1);
         double coherences[] = coherence.calculateCoherences(candidate_array);
         int j = 0;
@@ -157,26 +128,6 @@ class Coherent_Blinder {
         }
 
     }
-
-
-    /*private void cartesian(Topk_candidates list, int n, String[] tmpResult, List<String[]> result) {
-        if (n == list.getScored_candidates().length) {
-            List<String> temp = Arrays.asList(tmpResult);
-            if (containsUnique(temp) && !result.contains(temp)) {
-                result.add(tmpResult);
-            }
-            return;
-        }
-        //case of no candidate is founded
-        if (list.getScored_candidates()[n].isEmpty()) {
-            tmpResult[n] = "";
-            cartesian(list, n + 1, tmpResult, result);
-        } else
-            for (Candidate i : list.getScored_candidates()[n]) {
-                tmpResult[n] = ((Header_Candidate) i).getHeader();
-                cartesian(list, n + 1, tmpResult, result);
-            }
-    }*/
 
 
     private <T> boolean containsUnique(List<T> list) {
