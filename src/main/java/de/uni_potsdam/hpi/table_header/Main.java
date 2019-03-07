@@ -31,7 +31,7 @@ public class Main {
 
 //--------------------------------Sample and build Htables---------------------
             //1. load or build the webtables sketch if it is not created
-           calculator.initialize(true,20); //run it with true only once to generate sample and train from the full dataset
+           calculator.initialize(true,25); //run it with true only once to generate sample and train from the full dataset
 
 //------------------------------------schema statistics------------------------------
             //2. load or build schemata statistics

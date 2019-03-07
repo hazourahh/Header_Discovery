@@ -44,4 +44,9 @@ public class Header_Candidate extends Candidate {
         return true;
     }
 
+    @Override
+    public int hashCode() {
+        return this.hashCode();
+    }
+
 }

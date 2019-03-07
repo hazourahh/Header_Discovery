@@ -32,6 +32,12 @@ public class WTable implements Serializable {
     private List<List<Cell>> tableHeaders = new ArrayList<>();
     private int tableId;
 
+    public static WTable fromString(String json_string) {
+        GsonBuilder builder = new GsonBuilder();
+        builder.setPrettyPrinting().serializeNulls();
+        Gson gson = builder.create();
+       return gson.fromJson(json_string, WTable.class);
+    }
 
     /**
      * setter and getter
@@ -165,9 +171,9 @@ public class WTable implements Serializable {
      */
     private String getColumnHeader(int column_id) {
         StringBuilder label = new StringBuilder();
-        //concatenate the labels form all levels
-        for (int i = 0; i < numHeaderRows; i++)
-            label.append(tableHeaders.get(i).get(column_id).getText()).append(" ");
+        //TODO: concatenate the labels form all levels?
+        //for (int i = 0; i < numHeaderRows; i++)
+            label.append(tableHeaders.get(numHeaderRows-1).get(column_id).getText());//.append(" ");
         return label.toString();
     }
 

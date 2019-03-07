@@ -56,7 +56,12 @@ class Similarity_caculator {
 
                 //3- sampling to build test datasets
                 HashSet<String> test = get_ReservoirSample(Tables_Supplier.stream(), sampling_percentage * number_tables / 100);
-                test.forEach(line->ResultWriter.add2Result(line+"\n",Config.Output.TEST_SET,Config.FULL_WIKI_FILENAME));
+                test.forEach(
+                        line->
+                        {  WTable t=WTable.fromString(line);
+                             if(!t.has_missing_header() && t.getNumericColumns().length<3)
+                             ResultWriter.add2Result(line+"\n",Config.Output.TEST_SET,Config.FULL_WIKI_FILENAME);}
+                            );
                 System.out.println("***done sampling and writing test data***");
 
                 //4- write the rest as training data

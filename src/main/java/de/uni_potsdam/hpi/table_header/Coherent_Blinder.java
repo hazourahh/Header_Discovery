@@ -15,6 +15,7 @@ import org.aksw.palmetto.corpus.CorpusAdapter;
 import org.aksw.palmetto.corpus.lucene.LuceneCorpusAdapter;
 import org.aksw.palmetto.prob.bd.BooleanDocumentProbabilitySupplier;
 import org.aksw.palmetto.subsets.Segmentator;
+import org.apache.jena.ext.com.google.common.collect.Lists;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.store.FSDirectory;
@@ -22,11 +23,8 @@ import org.apache.lucene.store.FSDirectory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 class Coherent_Blinder {
@@ -115,21 +113,33 @@ class Coherent_Blinder {
 
     }*/
 
-    public void coherant_blind_candidate(Topk_candidates candidates, int k) {  //build permutations
+    public void coherant_blind_candidate(Topk_candidates candidates, int k) {
+        //build permutations
+        List<List<String>> candidates_list=new ArrayList<>();
+        for(int i=0;i<candidates.getScored_candidates().length;i++)
+        {
+            List<String> temp= new ArrayList<>();
+            if(candidates.getScored_candidates()[i].isEmpty())
+            {temp.add("");
+             candidates_list.add(temp);
+            }
+            for (Candidate j : candidates.getScored_candidates()[i]) {
+                String header_temp= ((Header_Candidate) j).getHeader().trim().toLowerCase().replaceAll(" ", "_");
+                temp.add(header_temp);
+            }
+                candidates_list.add(temp);
+        }
+        List<List<String>> result= Lists.cartesianProduct(candidates_list).stream().filter(e->containsUnique(e)).distinct().collect(Collectors.toList());
 
-        List<String[]> result = new ArrayList<>();
-        String[] tmpResult = new String[candidates.getScored_candidates().length];
-        cartesian(candidates, 0, tmpResult, result);
+       // String[] tmpResult = new String[candidates.getScored_candidates().length];
+       // cartesian(candidates, 0, tmpResult, result);
+
 
         // process all strings to have _ instead space to mach the index
         int i = 0;
         String[][] candidate_array = new String[result.size()][];
-        for (String[] schema_candidate : result) {
-            String[] schema_candidate_prep = Arrays.stream(schema_candidate)
-                    .map(String::trim)
-                    .map(String::toLowerCase)
-                    .map(str -> str.replaceAll(" ", "_"))
-                    .toArray(String[]::new);
+        for (List<String> schema_candidate : result) {
+            String[] schema_candidate_prep = schema_candidate.stream().toArray(String[]::new);
             candidate_array[i++] = schema_candidate_prep;
         }
 
@@ -149,9 +159,8 @@ class Coherent_Blinder {
     }
 
 
-    private void cartesian(Topk_candidates list, int n, String[] tmpResult, List<String[]> result) {
+    /*private void cartesian(Topk_candidates list, int n, String[] tmpResult, List<String[]> result) {
         if (n == list.getScored_candidates().length) {
-            //if(STATISTICDB.cohere(Arrays.asList(tmpResult))>0.5)
             List<String> temp = Arrays.asList(tmpResult);
             if (containsUnique(temp) && !result.contains(temp)) {
                 result.add(tmpResult);
@@ -167,7 +176,7 @@ class Coherent_Blinder {
                 tmpResult[n] = ((Header_Candidate) i).getHeader();
                 cartesian(list, n + 1, tmpResult, result);
             }
-    }
+    }*/
 
 
     private <T> boolean containsUnique(List<T> list) {
