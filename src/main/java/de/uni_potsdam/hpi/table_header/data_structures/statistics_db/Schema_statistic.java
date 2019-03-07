@@ -28,9 +28,7 @@ public class Schema_statistic implements Serializable {
                     .map(String::toLowerCase)
                     .collect(Collectors.toList());
             schema_strings= (ArrayList<String>) temp;
-           // this.schema = BloomFilter.create(Funnels.stringFunnel(Charset.defaultCharset()),temp.size(),0.0000000000000000000000000000000000000000001);
-           //temp.forEach(e ->  this.schema.put(e));
-            this.count = count;
+              this.count = count;
     }
 
    /* public boolean hasHeader(String header) {

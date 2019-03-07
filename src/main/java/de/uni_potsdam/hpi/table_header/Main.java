@@ -10,6 +10,11 @@ import de.uni_potsdam.hpi.table_header.data_structures.wiki_table.WTable;
 import de.uni_potsdam.hpi.table_header.io.Config;
 import de.uni_potsdam.hpi.table_header.io.InputReader;
 import de.uni_potsdam.hpi.table_header.io.ResultWriter;
+import org.aksw.palmetto.aggregation.ArithmeticMean;
+import org.aksw.palmetto.calculations.direct.FitelsonConfirmationMeasure;
+import org.aksw.palmetto.calculations.direct.LogCondProbConfirmationMeasure;
+import org.aksw.palmetto.subsets.OneOne;
+import org.aksw.palmetto.subsets.OnePreceding;
 
 
 import java.util.stream.Stream;
@@ -30,7 +35,7 @@ public class Main {
 
 //------------------------------------schema statistics------------------------------
             //2. load or build schemata statistics
-            blinder.initialize();
+            blinder.initialize(new OneOne(),new FitelsonConfirmationMeasure(),new ArithmeticMean());
 //----------------------------------- Testing ---------------------------------
 
         //read the file with missing header into hyper representation
@@ -42,8 +47,10 @@ public class Main {
         //TODO: remove saving result to file in the final product
          test_set.forEach(
                  hyper_table->
-                 {  //1-convert to htable
+                 {
+                     //1-convert to htable
                      HTable current= hyper_table.Convert2Hyper();
+                     System.out.print("Table: "+current.get_id());
                      //2- find topk for each header
                      Topk_candidates candidates= calculator.calculate_similarity(current,k);
 
@@ -62,22 +69,71 @@ public class Main {
                      }
                      ResultWriter.add2Result(result.toString(), Config.Output.RESULT,"");
                      */
-
-                     blinder.coherant_blind_candidate(candidates,m);
-                     MinMaxPriorityQueue<Candidate> result= blinder.getCandidates().getScored_candidates()[0];
-                     StringBuilder result_text = new StringBuilder();
-                     result.forEach(e->
-                     {  Schema_Candidate cand=(Schema_Candidate) e;
-                         result_text.append(current.get_id().replace(",", " "));
-                         result_text.append(";");
-                         result_text.append(cand.getSimilarity_score());
-                         result_text.append(";[");
-                         result_text.append(String.join("-",cand.getSchema()));
-                         result_text.append(";][");
-                         result_text.append(String.join("-",current.getHeaders()));
-                         result_text.append("]\n");
-                         ResultWriter.add2Result(result_text.toString(), Config.Output.RESULT,"");
-                      });
+                    if(candidates.getScored_candidates().length==0)
+                    { ResultWriter.add2Result(current.get_id().replace(";", " ")+
+                            ";"+
+                            current.getName().replace(";", " ")+
+                            ";"+
+                            hyper_table.getPgTitle().replace(";", " ")+
+                            ";"+
+                            hyper_table.getNumDataRows()+
+                            ";"+
+                            hyper_table.getNumCols()+
+                            ";"+
+                            hyper_table.getNumericColumns().length+
+                            ";"+
+                            ""+
+                            ";"+
+                            String.join("-",current.getHeaders())+
+                            ";"+
+                            -1+"\n", Config.Output.RESULT,"");
+                    }
+                    else {
+                        blinder.coherant_blind_candidate(candidates, m);
+                        MinMaxPriorityQueue<Candidate> result = blinder.getCandidates().getScored_candidates()[0];
+                        StringBuilder result_text = new StringBuilder();
+                        result.forEach(e ->
+                        {
+                            Schema_Candidate cand = (Schema_Candidate) e;
+                            ResultWriter.add2Result(current.get_id().replace(";", " ") +
+                                    ";" +
+                                    current.getName().replace(";", " ") +
+                                    ";" +
+                                    hyper_table.getPgTitle().replace(";", " ") +
+                                    ";" +
+                                    hyper_table.getNumDataRows() +
+                                    ";" +
+                                    hyper_table.getNumCols() +
+                                    ";" +
+                                    hyper_table.getNumericColumns().length +
+                                    ";" +
+                                    String.join("-", cand.getSchema()) +
+                                    ";" +
+                                    String.join("-", current.getHeaders()) +
+                                    ";" +
+                                    cand.getSimilarity_score() + "\n", Config.Output.RESULT, "");
+                            // System.out.println(current.get_id().replace(",", " ")+";"+String.join("-",cand.getSchema())+";"+String.join("-",current.getHeaders())+";"+cand.getSimilarity_score()+"\n");
+                        });
+                        if (result.isEmpty())
+                            ResultWriter.add2Result(current.get_id().replace(";", " ") +
+                                    ";" +
+                                    current.getName().replace(";", " ") +
+                                    ";" +
+                                    hyper_table.getPgTitle().replace(";", " ") +
+                                    ";" +
+                                    hyper_table.getNumDataRows() +
+                                    ";" +
+                                    hyper_table.getNumCols() +
+                                    ";" +
+                                    hyper_table.getNumericColumns().length +
+                                    ";" +
+                                    "" +
+                                    ";" +
+                                    String.join("-", current.getHeaders()) +
+                                    ";" +
+                                    -2 + "\n", Config.Output.RESULT, "");
+                    }
+                     System.out.println("--> done");
                   });
 
             //stopTime = System.currentTimeMillis();

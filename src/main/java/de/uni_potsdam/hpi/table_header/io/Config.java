@@ -6,10 +6,11 @@ public class Config {
 
    //folders
     public static String inputFolderPath = "data" + File.separator ;
-    public static String measurementsFolderPath;
+    public static String measurementsFolderPath,index_Folder;
 
     static {
         measurementsFolderPath = "io" + File.separator;
+        index_Folder=measurementsFolderPath+"index"+ File.separator;
     }
 
     //input

@@ -1,15 +1,6 @@
 package de.uni_potsdam.hpi.table_header.data_structures.statistics_db;
 
-import com.clearspring.analytics.stream.membership.BloomFilter;
-import de.uni_potsdam.hpi.table_header.io.Config;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.store.RAMDirectory;
+
 
 
 import java.io.Serializable;

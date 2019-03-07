@@ -3,9 +3,20 @@ package de.uni_potsdam.hpi.table_header.io;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import de.uni_potsdam.hpi.table_header.data_structures.hyper_table.HTable;
-import de.uni_potsdam.hpi.table_header.data_structures.statistics_db.ACSDb;
 import de.uni_potsdam.hpi.table_header.data_structures.wiki_table.WTable;
+import org.aksw.palmetto.Palmetto;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Version;
 
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -56,6 +67,7 @@ public class InputReader {
 
         return hyper_table;
     }
+
     public static Stream<HTable> parse_wiki_tables_test() {
         Stream.Builder<HTable> builder = Stream.builder();
         Stream<WTable> test_tables = InputReader.parse_wiki_tables_object(Config.TESTING_WIKI_FILENAME);
@@ -65,7 +77,7 @@ public class InputReader {
 
     //----------------------------------------------------------------
     //parse ACSDB file into ACSDB representation
-    public static ACSDb read_ACSDB_File(String Filename) {
+   /* public static ACSDb read_ACSDB_File(String Filename) {
         ACSDb db = new ACSDb();
         //TODO: filter to reduce size
         try (Stream<String> lines = Files.lines(Paths.get(Filename))) {
@@ -89,6 +101,64 @@ public class InputReader {
         }
 
         return db;
+    }*/
+
+    public static void build_ACSDB_index(String Filename) {
+
+        try {
+            //index directory
+            File indexpath = new File(Config.index_Folder);
+            indexpath.mkdirs();
+            Directory dir = FSDirectory.open(indexpath);
+            Analyzer analyzer= new WhitespaceAnalyzer(Version.LUCENE_44);
+            IndexWriterConfig iwc=new IndexWriterConfig(Version.LUCENE_44,analyzer);
+
+            //create a new index in the directory and remove any previous indexed docs
+            iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+            IndexWriter writer=new IndexWriter(dir,iwc);
+
+            //pasrs ACSDB and add schemata to the index
+        //TODO: filter to reduce size
+        Stream<String> lines = Files.lines(Paths.get(Filename));
+            lines.forEach(line -> {
+                        int first_dash = line.indexOf('_');
+                        int last_equal = line.lastIndexOf('=');
+                        String type = line.substring(0, first_dash);
+                        String the_schema = line.substring(first_dash + 1, last_equal - 1);
+                        String freq = line.substring(last_equal + 1).trim();
+                        //TODO: check if we need the single attributes
+                        if (type.equals("combo") && !the_schema.equals("") && !the_schema.equals(" ")) {
+                            Document doc=new Document();
+                           String processed_schema= Arrays.stream(the_schema.split("_"))
+                                    .map(e -> e.replaceAll("[\\]\\[(){},.;:!?<>%\\-*]", " "))
+                                    .map(String::trim)
+                                    .map(String::toLowerCase)
+                                    .map(e -> e.replaceAll(" ","_"))
+                                    .collect(Collectors.joining( " " ));
+
+                            doc.add(new TextField(Palmetto.DEFAULT_TEXT_INDEX_FIELD_NAME,processed_schema,TextField.Store.YES));
+                            try{
+                                //add the document n time where n is the frequency of this schema
+                                for(int i=0;i<Integer.parseInt(freq);i++)
+                                    writer.addDocument(doc);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                System.exit(1);
+                            }
+
+                        }
+                    }
+
+            );
+
+            writer.forceMerge(1);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+
     }
 
     //----------------------------------------------------------------
@@ -117,6 +187,7 @@ public class InputReader {
         //return only distinct tables according to their Ids
         return wiki_objects_stream.distinct();
     }
+
     public static Stream<String> parse_wiki_tables_file(String file) {
         Stream<String> stream = null;
         try {
