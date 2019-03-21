@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -60,11 +61,17 @@ class Similarity_caculator {
                 //System.out.println("***statistics about full datasets***");
 
                 //3- sampling to build test datasets
+                //TODO: check all this critiria to check the quality of test set
                 HashSet<String> test = get_ReservoirSample(Tables_Supplier.stream(), sampling_percentage * number_tables / 100);
                 test.forEach(
                         line->
                         {  WTable t=WTable.fromString(line);
-                             if(!t.has_missing_header() && t.getNumericColumns().length<3)
+                             if(      t.getNumHeaderRows()==1 &&
+                                     !t.has_missing_header() &&
+                                      t.getNumericColumns().length<3 &&
+                                      t.getNumCols()<6 &&
+                                     check_header_quality(t.getHeaders())
+                             )
                              ResultWriter.add2Result(line+"\n",Config.Output.TEST_SET,Config.FULL_WIKI_FILENAME);}
                             );
                 System.out.println("***done sampling and writing test data***");
@@ -74,13 +81,17 @@ class Similarity_caculator {
                 System.out.println("***done writing train dataset ***");
             }
                 //1- parse training data
-               Stream<WTable> train_tables = InputReader.parse_wiki_tables_object(Config.TRAINING_WIKI_FILENAME);
+               Stream<String> train_tables = InputReader.parse_wiki_tables_file(Config.TRAINING_WIKI_FILENAME);
 
                 // 2-caculate statistics
                 // calculate_wiki_tables_statistics(train_tables.get(), Config.FULL_WIKI_FILENAME);
 
                 //3-convert to HLLwebtables
-               train_tables.filter(wt -> !wt.has_missing_header_line()).forEach(wtable -> HLLWEBTABLES.add(wtable.Convert2Hyper()));
+               train_tables.forEach(json_table->{
+                   WTable wt=WTable.fromString(json_table);
+                   if(!wt.has_missing_header_line() && wt.getNumericColumns().length<3)
+                        HLLWEBTABLES.add(wt.Convert2Hyper());
+               });
                System.out.println("***done converting train dataset to HLL representation***");
 
             // store the HLLwebtables
@@ -320,5 +331,17 @@ class Similarity_caculator {
         // result.forEach(System.out::println);
         return result;
 
+    }
+
+    private boolean check_header_quality(List<String> headers)
+    {  //not empty
+        if(headers.size()==0) return false;
+        // no empty header longer than 25 or only number
+        for (int i = 0; i < headers.size(); i++) {
+            if (headers.get(i).isEmpty() || headers.get(i).equals(" ") || headers.get(i).length()>25 || headers.get(i).matches("[0-9]+") || headers.get(i).contains(")") || headers.get(i).contains("("))
+                return false;
+        }
+        // all unique
+        return headers.stream().allMatch(new HashSet<>()::add);
     }
 }

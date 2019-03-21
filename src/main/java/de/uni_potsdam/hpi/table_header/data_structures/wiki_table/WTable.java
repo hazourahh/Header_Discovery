@@ -226,8 +226,11 @@ public class WTable implements Serializable {
     public boolean has_missing_header() {
         //TODO: if you added any null representation update here
         boolean null_seen = false;
-
-        for (String Value : getHeaders()) if (StringUtils.isBlank(Value)) null_seen = true;
+        List<String> headers=getHeaders();
+        if(headers==null || headers.isEmpty())
+            null_seen =true;
+    else
+        for (String Value : headers) if (StringUtils.isBlank(Value)) null_seen = true;
 
         return null_seen;
     }
@@ -239,7 +242,7 @@ public class WTable implements Serializable {
     public boolean has_missing_header_line() {
         //TODO: if you added any null representation update here
         boolean non_null_seen = false;
-
+              
         for (String Value : getHeaders()) {
             if (!StringUtils.isBlank(Value)) {
                 non_null_seen = true;

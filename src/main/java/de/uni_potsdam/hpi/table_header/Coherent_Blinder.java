@@ -89,32 +89,34 @@ class Coherent_Blinder {
 
 
     public void coherant_blind_candidate(Topk_candidates candidates, int k) {
-        //build permutations and process all strings to have _ instead space to mach the index
-        List<List<String>> candidates_list=new ArrayList<>();
-        for(int i=0;i<candidates.getScored_candidates().length;i++)
+        String[][] candidate_array;
         {
-            List<String> temp= new ArrayList<>();
-            if(candidates.getScored_candidates()[i].isEmpty())
-            {temp.add("");
-             candidates_list.add(temp);
+            List<List<String>> result;
+            { //build permutations and process all strings to have _ instead space to mach the index
+                List<List<String>> candidates_list = new ArrayList<>();
+                for (int i = 0; i < candidates.getScored_candidates().length; i++) {
+                    List<String> temp = new ArrayList<>();
+                    if (candidates.getScored_candidates()[i].isEmpty()) {
+                        temp.add("");
+                        candidates_list.add(temp);
+                    }
+                    for (Candidate j : candidates.getScored_candidates()[i]) {
+                        String header_temp = ((Header_Candidate) j).getHeader().trim().toLowerCase().replaceAll(" ", "_");
+                        temp.add(header_temp);
+                    }
+                    candidates_list.add(temp);
+                }
+                result = Lists.cartesianProduct(candidates_list).stream().filter(e -> containsUnique(e)).distinct().collect(Collectors.toList());
             }
-            for (Candidate j : candidates.getScored_candidates()[i]) {
-                String header_temp= ((Header_Candidate) j).getHeader().trim().toLowerCase().replaceAll(" ", "_");
-                temp.add(header_temp);
+
+            // convert to palmeto input
+            int i = 0;
+            candidate_array = new String[result.size()][];
+            for (List<String> schema_candidate : result) {
+                String[] schema_candidate_prep = schema_candidate.stream().toArray(String[]::new);
+                candidate_array[i++] = schema_candidate_prep;
             }
-                candidates_list.add(temp);
         }
-        List<List<String>> result= Lists.cartesianProduct(candidates_list).stream().filter(e->containsUnique(e)).distinct().collect(Collectors.toList());
-
-
-        // convert to palmeto input
-        int i = 0;
-        String[][] candidate_array = new String[result.size()][];
-        for (List<String> schema_candidate : result) {
-            String[] schema_candidate_prep = schema_candidate.stream().toArray(String[]::new);
-            candidate_array[i++] = schema_candidate_prep;
-        }
-
         //caculate top k coherent candidate list
         schema_candidates = new Topk_candidates(k, 1);
         double coherences[] = coherence.calculateCoherences(candidate_array);
@@ -123,8 +125,9 @@ class Coherent_Blinder {
             if ((schema_candidate != null) && (schema_candidate.length > 0)) {
 
                 schema_candidates.add_candidate(0,
-                        new Schema_Candidate(Arrays.asList(schema_candidate), coherences[j++]));
+                        new Schema_Candidate(Arrays.asList(schema_candidate), coherences[j]));
             }
+            j++;
         }
 
     }

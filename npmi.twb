@@ -1,0 +1,486 @@
+<?xml version='1.0' encoding='utf-8' ?>
+
+<!-- build 20182.18.1219.1517                               -->
+<workbook original-version='18.1' source-build='2018.2.5 (20182.18.1219.1517)' source-platform='win' version='18.1' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <preferences>
+    <preference name='ui.encoding.shelf.height' value='24' />
+    <preference name='ui.shelf.height' value='26' />
+  </preferences>
+  <datasources>
+    <datasource caption='result_ - Copy' inline='true' name='federated.1gzf2gz1cpumaj18nka2i0kjtw1j' version='18.1'>
+      <connection class='federated'>
+        <named-connections>
+          <named-connection caption='result_ - Copy' name='textscan.0cizfzd0z8up5115n3lzn18oxsjw'>
+            <connection class='textscan' directory='C:/Users/hazar.harmouch/Documents' filename='result_ - Copy.csv' password='' server='' />
+          </named-connection>
+        </named-connections>
+        <relation connection='textscan.0cizfzd0z8up5115n3lzn18oxsjw' name='result_ - Copy.csv' table='[result_ - Copy#csv]' type='table'>
+          <columns character-set='UTF-8' header='no' locale='en_GB' separator=';'>
+            <column datatype='string' name='F1' ordinal='0' />
+            <column datatype='string' name='F2' ordinal='1' />
+            <column datatype='string' name='F3' ordinal='2' />
+            <column datatype='integer' name='F4' ordinal='3' />
+            <column datatype='integer' name='F5' ordinal='4' />
+            <column datatype='integer' name='F6' ordinal='5' />
+            <column datatype='string' name='F7' ordinal='6' />
+            <column datatype='string' name='F8' ordinal='7' />
+            <column datatype='string' name='F9' ordinal='8' />
+          </columns>
+        </relation>
+        <metadata-records>
+          <metadata-record class='capability'>
+            <remote-name />
+            <remote-type>0</remote-type>
+            <parent-name>[result_ - Copy.csv]</parent-name>
+            <remote-alias />
+            <aggregation>Count</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='character-set'>&quot;UTF-8&quot;</attribute>
+              <attribute datatype='string' name='collation'>&quot;en_GB&quot;</attribute>
+              <attribute datatype='string' name='currency'>&quot;£&quot;</attribute>
+              <attribute datatype='string' name='debit-close-char'>&quot;&quot;</attribute>
+              <attribute datatype='string' name='debit-open-char'>&quot;&quot;</attribute>
+              <attribute datatype='string' name='field-delimiter'>&quot;;&quot;</attribute>
+              <attribute datatype='string' name='header-row'>&quot;false&quot;</attribute>
+              <attribute datatype='string' name='locale'>&quot;en_GB&quot;</attribute>
+              <attribute datatype='string' name='single-char'>&quot;&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>F1</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[F1]</local-name>
+            <parent-name>[result_ - Copy.csv]</parent-name>
+            <remote-alias>F1</remote-alias>
+            <ordinal>0</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RGB' />
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>F2</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[F2]</local-name>
+            <parent-name>[result_ - Copy.csv]</parent-name>
+            <remote-alias>F2</remote-alias>
+            <ordinal>1</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RGB' />
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>F3</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[F3]</local-name>
+            <parent-name>[result_ - Copy.csv]</parent-name>
+            <remote-alias>F3</remote-alias>
+            <ordinal>2</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RGB' />
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>F4</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[F4]</local-name>
+            <parent-name>[result_ - Copy.csv]</parent-name>
+            <remote-alias>F4</remote-alias>
+            <ordinal>3</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>F5</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[F5]</local-name>
+            <parent-name>[result_ - Copy.csv]</parent-name>
+            <remote-alias>F5</remote-alias>
+            <ordinal>4</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>F6</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[F6]</local-name>
+            <parent-name>[result_ - Copy.csv]</parent-name>
+            <remote-alias>F6</remote-alias>
+            <ordinal>5</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>F7</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[F7]</local-name>
+            <parent-name>[result_ - Copy.csv]</parent-name>
+            <remote-alias>F7</remote-alias>
+            <ordinal>6</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RGB' />
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>F8</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[F8]</local-name>
+            <parent-name>[result_ - Copy.csv]</parent-name>
+            <remote-alias>F8</remote-alias>
+            <ordinal>7</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RGB' />
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>F9</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[F9]</local-name>
+            <parent-name>[result_ - Copy.csv]</parent-name>
+            <remote-alias>F9</remote-alias>
+            <ordinal>8</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RGB' />
+          </metadata-record>
+        </metadata-records>
+      </connection>
+      <aliases enabled='yes' />
+      <column caption='test' datatype='string' name='[Calculation_1012465528374927360]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='IF (([F9]=&apos;NaN&apos; OR  FLOAT([F9])&lt;=0) AND LOWER([F8])=[F7]) THEN &apos;FN_P&apos;&#13;&#10;ELSEIF (FLOAT([F9])&gt;0 AND LOWER([F8])=[F7]) THEN &apos;TP&apos; &#13;&#10;ELSEIF  ISNULL([F8]) THEN &apos;NS&apos;&#13;&#10;ELSEIF ISNULL([F7]) THEN &apos;NR&apos; &#13;&#10;ELSE&apos;FN&apos; END' />
+      </column>
+      <column caption='Calculation1' datatype='integer' name='[Calculation_1012465528377421825]' role='measure' type='quantitative'>
+        <calculation class='tableau' formula='{FIXED [F1]: COUNT (IF ([Calculation_1012465528374927360]=&apos;TP&apos; or [Calculation_1012465528374927360]=&apos;FN_P&apos;) then 1 else 0 END)}' />
+      </column>
+      <column caption='id' datatype='string' name='[F1]' role='dimension' type='nominal' />
+      <column caption='page' datatype='string' name='[F2]' role='dimension' type='nominal' />
+      <column caption='table' datatype='string' name='[F3]' role='dimension' type='nominal' />
+      <column caption='rows' datatype='integer' name='[F4]' role='measure' type='quantitative' />
+      <column caption='cols' datatype='integer' name='[F5]' role='measure' type='quantitative' />
+      <column caption='num_cols' datatype='integer' name='[F6]' role='measure' type='quantitative' />
+      <column caption='result' datatype='string' name='[F7]' role='dimension' type='nominal' />
+      <column caption='original' datatype='string' name='[F8]' role='dimension' type='nominal' />
+      <column caption='score' datatype='string' name='[F9]' role='dimension' type='nominal' />
+      <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
+        <calculation class='tableau' formula='1' />
+      </column>
+      <layout dim-ordering='alphabetic' dim-percentage='0.523497' measure-ordering='alphabetic' measure-percentage='0.476503' rowDisplayCount='40000' show-structure='true' />
+      <semantic-values>
+        <semantic-value key='[Country].[Name]' value='&quot;Germany&quot;' />
+      </semantic-values>
+      <date-options start-of-week='monday' />
+      <field-sort-info field-sort-order-type='custom-order'>
+        <field-sort-custom-order field='F1' />
+        <field-sort-custom-order field='F2' />
+        <field-sort-custom-order field='F3' />
+        <field-sort-custom-order field='F4' />
+        <field-sort-custom-order field='F5' />
+        <field-sort-custom-order field='F6' />
+        <field-sort-custom-order field='F7' />
+        <field-sort-custom-order field='F8' />
+        <field-sort-custom-order field='F9' />
+        <field-sort-custom-order field='Calculation_1012465528374927360' />
+        <field-sort-custom-order field='Calculation_1012465528377421825' />
+      </field-sort-info>
+    </datasource>
+  </datasources>
+  <worksheets>
+    <worksheet name='Sheet 1'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='result_ - Copy' name='federated.1gzf2gz1cpumaj18nka2i0kjtw1j' />
+          </datasources>
+          <datasource-dependencies datasource='federated.1gzf2gz1cpumaj18nka2i0kjtw1j'>
+            <column caption='test' datatype='string' name='[Calculation_1012465528374927360]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='IF (([F9]=&apos;NaN&apos; OR  FLOAT([F9])&lt;=0) AND LOWER([F8])=[F7]) THEN &apos;FN_P&apos;&#13;&#10;ELSEIF (FLOAT([F9])&gt;0 AND LOWER([F8])=[F7]) THEN &apos;TP&apos; &#13;&#10;ELSEIF  ISNULL([F8]) THEN &apos;NS&apos;&#13;&#10;ELSEIF ISNULL([F7]) THEN &apos;NR&apos; &#13;&#10;ELSE&apos;FN&apos; END' />
+            </column>
+            <column caption='id' datatype='string' name='[F1]' role='dimension' type='nominal' />
+            <column caption='result' datatype='string' name='[F7]' role='dimension' type='nominal' />
+            <column caption='original' datatype='string' name='[F8]' role='dimension' type='nominal' />
+            <column caption='score' datatype='string' name='[F9]' role='dimension' type='nominal' />
+            <column-instance column='[F1]' derivation='CountD' name='[ctd:F1:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[Calculation_1012465528374927360]' derivation='None' name='[none:Calculation_1012465528374927360:nk]' pivot='key' type='nominal' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.1gzf2gz1cpumaj18nka2i0kjtw1j].[none:Calculation_1012465528374927360:nk]'>
+            <groupfilter from='&quot;FN_P&quot;' function='range' level='[none:Calculation_1012465528374927360:nk]' to='&quot;TP&quot;' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[federated.1gzf2gz1cpumaj18nka2i0kjtw1j].[none:Calculation_1012465528374927360:nk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+          </pane>
+        </panes>
+        <rows>[federated.1gzf2gz1cpumaj18nka2i0kjtw1j].[ctd:F1:qk]</rows>
+        <cols>[federated.1gzf2gz1cpumaj18nka2i0kjtw1j].[none:Calculation_1012465528374927360:nk]</cols>
+      </table>
+    </worksheet>
+    <worksheet name='Sheet 2'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='result_ - Copy' name='federated.1gzf2gz1cpumaj18nka2i0kjtw1j' />
+          </datasources>
+          <datasource-dependencies datasource='federated.1gzf2gz1cpumaj18nka2i0kjtw1j'>
+            <column caption='id' datatype='string' name='[F1]' role='dimension' type='nominal' />
+            <column-instance column='[F1]' derivation='CountD' name='[ctd:F1:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <encodings>
+              <text column='[federated.1gzf2gz1cpumaj18nka2i0kjtw1j].[ctd:F1:qk]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='mark-labels-show' value='true' />
+                <format attr='mark-labels-cull' value='true' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows />
+        <cols />
+      </table>
+    </worksheet>
+    <worksheet name='Sheet 3'>
+      <table>
+        <view>
+          <datasources />
+          <aggregation value='true' />
+        </view>
+        <style />
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+          </pane>
+        </panes>
+        <rows />
+        <cols />
+      </table>
+    </worksheet>
+  </worksheets>
+  <windows source-height='30'>
+    <window class='worksheet' name='Sheet 1'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <highlight>
+          <color-one-way>
+            <field>[federated.1gzf2gz1cpumaj18nka2i0kjtw1j].[none:Calculation_1012465528374927360:nk]</field>
+            <field>[federated.1gzf2gz1cpumaj18nka2i0kjtw1j].[none:F1:nk]</field>
+          </color-one-way>
+        </highlight>
+      </viewpoint>
+    </window>
+    <window class='worksheet' name='Sheet 2'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <highlight>
+          <color-one-way>
+            <field>[federated.1gzf2gz1cpumaj18nka2i0kjtw1j].[none:F1:nk]</field>
+          </color-one-way>
+        </highlight>
+      </viewpoint>
+    </window>
+    <window class='worksheet' maximized='true' name='Sheet 3'>
+      <cards>
+        <edge name='left'>
+          <strip size='160'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <highlight>
+          <color-one-way>
+            <field>[federated.1gzf2gz1cpumaj18nka2i0kjtw1j].[none:Calculation_1012465528377421825:qk]</field>
+          </color-one-way>
+        </highlight>
+      </viewpoint>
+    </window>
+  </windows>
+  <thumbnails>
+    <thumbnail height='192' name='Sheet 1' width='192'>
+      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
+    </thumbnail>
+    <thumbnail height='24' name='Sheet 2' width='64'>
+      iVBORw0KGgoAAAANSUhEUgAAAEAAAAAYCAYAAABKtPtEAAAACXBIWXMAAA7DAAAOwwHHb6hk
+      AAAC5UlEQVRYhe2UwStsURzHv+/Nu+TKRKGUTNkhC023ZOFmCn+BFclCk7KxEVJKUVPIqLFQ
+      yoZmZyWKMZ0NO4pCs7CZQu5lJrr3MMr5vcWr27vN8Ohlzqs3nzqL8/v9zvl9+/Y75xsREf5j
+      vssWIJuCAbIFyKZggGwBsikYIFuAbAoGyBYgm4IBsgXIpmCAbAGy+ZGPJkIIHB8fIxqNgnOO
+      +fl5lJaWOvnx8XHEYjFn39zcjLW1NdcdhmFgYGAAhmE4sWAwiGAwmHUeAMrKyhCJRNDU1ATO
+      ORYXF7G1tQUA6O7uxsTEBIqLi/NjAGMMsVgMg4OD2NnZceU451AUBdvb26iurn7zDtM0oes6
+      xsbGsnKhUMi1v76+xurqKurr6yGEQDgchqqq2N/fh6IouLm5gcfjAZCnCQgEAggEArBtOyv3
+      /PwMj8fjmohcpNNpVFVVfagfYwy6rqOkpATJZBKmaWJ6ehqqqgIA6urqnFrpf4BlWVBV9Y8G
+      3N3duYS/V3d+fo6WlhYAQDKZRENDA7xeb+4DlEcsy6KFhQWyLCtn/uXlhRhjNDQ09O49Dw8P
+      FIlEaG5uLis+OTlJpmk6sb29PVpaWqL7+3siIkqlUjQ6OkqMMSIikj4Bv6MoCnRdR21t7bt1
+      Xq8XPT09SKVS4Jw78cPDQzQ2NqKystKJ+Xw+AEB5eTkAoKKiAl1dXUgkEgD+gScQjUaxubmJ
+      TCYDIQTi8Tiurq5cNbZtIxQK4ezsDEIIcM6xsbGBmpoa510/PT3h6OgInZ2drrM+nw+GYWB3
+      dxdCCKTTacTjcfj9/l8FfzPSH2VlZYX8fr9rtbe308nJCT0+PtLs7Cy1tbWRpmnU19dHl5eX
+      xDmn4eFhOjg4ICKiRCJB/f39pGkatba20szMDNm27fRgjNHy8nLO/re3tzQyMkKaplFHRwet
+      r6/T6+srERHl9Q/4DBcXFzQ1NUWZTOZL+0h/Am9xenqK3t5eFBUVfWmfn7m5fBRJvGy0AAAA
+      AElFTkSuQmCC
+    </thumbnail>
+    <thumbnail height='192' name='Sheet 3' width='192'>
+      iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAACXBIWXMAAA7DAAAOwwHHb6hk
+      AAACFUlEQVR4nO3TMQEAIAzAMMC/5yFjRxMFfXpnZg5Eve0A2GQA0gxAmgFIMwBpBiDNAKQZ
+      gDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFI
+      MwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQD
+      kGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBp
+      BiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA
+      0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDN
+      AKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxA
+      mgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZ
+      gDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFI
+      MwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKQZgDQDkGYA0gxAmgFIMwBpBiDNAKR9Y+0F
+      fBUOM1sAAAAASUVORK5CYII=
+    </thumbnail>
+  </thumbnails>
+</workbook>
