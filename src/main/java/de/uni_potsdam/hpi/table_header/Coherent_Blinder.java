@@ -23,7 +23,10 @@ import org.apache.lucene.store.FSDirectory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 /**
  * @author Hazar Harmouch
@@ -32,23 +35,40 @@ import java.util.stream.Collectors;
 
 class Coherent_Blinder {
 
-
-    private Topk_candidates schema_candidates;
     private Coherence coherence;
-    public Topk_candidates getCandidates() {
-        return schema_candidates;
-    }
+
 
     //filters??
     //TODO : filter long attribute of schemata happens once?
 
     /***
-     *   build inverted index and coherence measure to evaluate the coherence of the schema candidates
-      * @param segmentation
+     *
+     * @param segmentation
      * @param confirmation
      * @param aggregation
      */
-    void initialize(Segmentator segmentation, DirectConfirmationMeasure confirmation, Aggregation aggregation) {
+   public Coherent_Blinder(Segmentator segmentation, DirectConfirmationMeasure confirmation, Aggregation aggregation)
+    { try {
+        //build a coherence object based on the input
+        CorpusAdapter corpusAdapter = LuceneCorpusAdapter.create(Config.index_Folder, Palmetto.DEFAULT_TEXT_INDEX_FIELD_NAME);
+        coherence = new DirectConfirmationBasedCoherence(segmentation,
+                BooleanDocumentProbabilitySupplier.create(corpusAdapter, "bd", true),
+                confirmation, aggregation);
+        if (coherence == null) {
+            return;
+        }
+    } catch (IOException e) {
+        System.err.println("Could not open acsdb index");
+        e.printStackTrace();
+        System.exit(1);
+    }
+        //corpusAdapter.close();
+    }
+    /***
+     *   build inverted index and coherence measure to evaluate the coherence of the schema candidates
+
+     */
+   public static void initialize() {
 
         try { //check if the index already there
                File indexpath = new File(Config.index_Folder);
@@ -67,28 +87,13 @@ class Coherent_Blinder {
             e.printStackTrace();
             System.exit(1);
         }
-        try {
-            //build a coherence object based on the input
-            CorpusAdapter corpusAdapter = LuceneCorpusAdapter.create(Config.index_Folder, Palmetto.DEFAULT_TEXT_INDEX_FIELD_NAME);
-            coherence = new DirectConfirmationBasedCoherence(segmentation,
-                    BooleanDocumentProbabilitySupplier.create(corpusAdapter, "bd", true),
-                    confirmation, aggregation);
-            if (coherence == null) {
-                return;
-            }
-        } catch (IOException e) {
-            System.err.println("Could not open acsdb index");
-            e.printStackTrace();
-            System.exit(1);
-        }
-        //corpusAdapter.close();
-
     }
 
 //----------------------------------------------------------------
 
 
-    public void coherant_blind_candidate(Topk_candidates candidates, int k) {
+    public Topk_candidates coherant_blind_candidate(Topk_candidates candidates, int k) {
+
         String[][] candidate_array;
         {
             List<List<String>> result;
@@ -118,7 +123,7 @@ class Coherent_Blinder {
             }
         }
         //caculate top k coherent candidate list
-        schema_candidates = new Topk_candidates(k, 1);
+        Topk_candidates schema_candidates = new Topk_candidates(k, 1);
         double coherences[] = coherence.calculateCoherences(candidate_array);
         int j = 0;
         for (String[] schema_candidate : candidate_array) {
@@ -129,7 +134,7 @@ class Coherent_Blinder {
             }
             j++;
         }
-
+return schema_candidates;
     }
 
 

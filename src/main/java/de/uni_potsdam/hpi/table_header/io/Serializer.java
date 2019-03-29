@@ -5,7 +5,7 @@ import java.io.*;
  * @author Hazar Harmouch
  *
  */
-public class Serializer {
+public final class Serializer {
     /**
      * deserialize to Object from given file. We use the general Object so as that it can work for any Java Class.
      */

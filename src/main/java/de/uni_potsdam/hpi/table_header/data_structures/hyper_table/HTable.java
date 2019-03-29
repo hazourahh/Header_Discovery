@@ -12,23 +12,10 @@ public class HTable implements Serializable {
 
     private String _id;
     private String Name;/* table caption or file name in case of csv input file */
-    private ArrayList<Column> Columns = new ArrayList<>();/* Columns (Label and HLL) */
-    public static int HLLbitSize;/* size of columns hyperloglog representaion */
+    private List<Column> Columns = new ArrayList<>();/* Columns (Label and HLL) */
 
     public String get_id() {
         return _id;
-    }
-
-    /**
-     * Constructor
-     * @param name table caption
-     * @param HLLsize Hyperloglog size
-     */
-    public HTable(String id,String name, int HLLsize) {
-        super();
-        Name = name;
-        _id=id;
-        HLLbitSize = HLLsize;
     }
 
     /**
@@ -41,7 +28,6 @@ public class HTable implements Serializable {
         super();
         Name = name;
         _id=id;
-        HLLbitSize = HLLsize;
         columns_labels.forEach(column->Columns.add(new Column(column, HLLsize)));
     }
 
@@ -53,7 +39,7 @@ public class HTable implements Serializable {
         return Name;
     }
 
-    public ArrayList<Column> getColumns() {
+    public List<Column> getColumns() {
         return Columns;
     }
 
@@ -77,8 +63,8 @@ public class HTable implements Serializable {
      *
      * @return arraylist of Columns
      */
-    public  ArrayList<String> getHeaders() {
-        ArrayList<String> header=new ArrayList<>();
+    public  List<String> getHeaders() {
+        List<String> header=new ArrayList<>();
         for (Column c: Columns)
         {header.add(c.getLabel());}
         return header;

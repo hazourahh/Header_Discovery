@@ -5,8 +5,12 @@ import com.google.gson.GsonBuilder;
 import de.uni_potsdam.hpi.table_header.data_structures.hyper_table.HTable;
 import de.uni_potsdam.hpi.table_header.io.Config;
 import org.apache.commons.lang.StringUtils;
+
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -32,12 +36,6 @@ public class WTable implements Serializable {
     private List<List<Cell>> tableHeaders = new ArrayList<>();
     private int tableId;
 
-    public static WTable fromString(String json_string) {
-        GsonBuilder builder = new GsonBuilder();
-        builder.setPrettyPrinting().serializeNulls();
-        Gson gson = builder.create();
-       return gson.fromJson(json_string, WTable.class);
-    }
 
     /**
      * setter and getter
@@ -90,6 +88,7 @@ public class WTable implements Serializable {
         return tableId;
     }
 //--------------------------------------------------------------------------
+
     /***
      *
      * @return table caption as a name or section title if no caption
@@ -108,7 +107,7 @@ public class WTable implements Serializable {
      * @param withheader
      * @return
      */
-    private String getTableAsCSV(boolean withheader) {
+    public String getTableAsCSV(boolean withheader) {
         String thefile = "";
         if (withheader)
             thefile = String.join(",", getHeaders()) + "\n";
@@ -119,32 +118,6 @@ public class WTable implements Serializable {
 
     }
 
-    /***
-     *   write the current table in csv representation
-     * @param withheader rite header line or not
-     */
-    public void saveAsCSV(boolean withheader) {
-
-        File directory = new File(Config.TABLEASCSV_Folder);
-
-        if (!directory.exists())
-            directory.mkdir();
-
-        File file = new File(Config.TABLEASCSV_Folder + getTableName() + ".csv");
-        if (!file.exists()) {
-            try {
-                boolean created = file.createNewFile();
-                if (created) {
-                    BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile(), true));
-                    bw.write(getTableAsCSV(withheader));
-                    bw.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
 
     /***
      *
@@ -152,7 +125,7 @@ public class WTable implements Serializable {
      */
     public HTable Convert2Hyper() {
 
-        HTable hyper_table = new HTable(get_id(),getTableName(), getHeaders(), Config.HLLsize);
+        HTable hyper_table = new HTable(get_id(), getTableName(), getHeaders(), Config.HLLsize);
         for (int i = 0; i < hyper_table.getNumberCols(); i++) {
             Set column_value = getColumnValues(i);
             if (column_value.size() == 0) {
@@ -169,11 +142,11 @@ public class WTable implements Serializable {
      * @param column_id index of the column we neeed to know its label
      * @return header of the column
      */
-    private String getColumnHeader(int column_id) {
+    public String getColumnHeader(int column_id) {
         StringBuilder label = new StringBuilder();
         //TODO: concatenate the labels form all levels?
         //for (int i = 0; i < numHeaderRows; i++)
-            label.append(tableHeaders.get(numHeaderRows-1).get(column_id).getText());//.append(" ");
+        label.append(tableHeaders.get(numHeaderRows - 1).get(column_id).getText());//.append(" ");
         return label.toString();
     }
 
@@ -226,11 +199,11 @@ public class WTable implements Serializable {
     public boolean has_missing_header() {
         //TODO: if you added any null representation update here
         boolean null_seen = false;
-        List<String> headers=getHeaders();
-        if(headers==null || headers.isEmpty())
-            null_seen =true;
-    else
-        for (String Value : headers) if (StringUtils.isBlank(Value)) null_seen = true;
+        List<String> headers = getHeaders();
+        if (headers == null || headers.isEmpty())
+            null_seen = true;
+        else
+            for (String Value : headers) if (StringUtils.isBlank(Value)) null_seen = true;
 
         return null_seen;
     }
@@ -242,13 +215,47 @@ public class WTable implements Serializable {
     public boolean has_missing_header_line() {
         //TODO: if you added any null representation update here
         boolean non_null_seen = false;
-              
+
         for (String Value : getHeaders()) {
             if (!StringUtils.isBlank(Value)) {
                 non_null_seen = true;
             }
         }
         return !non_null_seen;
+    }
+
+    public static WTable fromString(String json_string) {
+        GsonBuilder builder = new GsonBuilder();
+        builder.setPrettyPrinting().serializeNulls();
+        Gson gson = builder.create();
+        return gson.fromJson(json_string, WTable.class);
+    }
+
+    /***
+     *   write the current table in csv representation
+     * @param withheader rite header line or not
+     */
+    public static void save_WTable_As_CSV(WTable wt, boolean withheader) {
+
+        File directory = new File(Config.TABLEASCSV_Folder);
+
+        if (!directory.exists())
+            directory.mkdir();
+
+        File file = new File(Config.TABLEASCSV_Folder + wt.getTableName() + ".csv");
+        if (!file.exists()) {
+            try {
+                boolean created = file.createNewFile();
+                if (created) {
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsoluteFile(), true));
+                    bw.write(wt.getTableAsCSV(withheader));
+                    bw.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     @Override
@@ -272,7 +279,7 @@ public class WTable implements Serializable {
         }
 
         final WTable other = (WTable) obj;
-        if ((this._id== null) ? (other._id != null) : !this._id.equals(other._id)) {
+        if ((this._id == null) ? (other._id != null) : !this._id.equals(other._id)) {
             return false;
         }
 

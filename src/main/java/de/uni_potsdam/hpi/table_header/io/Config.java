@@ -1,11 +1,11 @@
 package de.uni_potsdam.hpi.table_header.io;
 
 import java.io.File;
+
 /**
  * @author Hazar Harmouch
- *
  */
-public class Config {
+public final class Config {
 
     //folders
     public static String inputFolderPath = "data" + File.separator;
@@ -55,10 +55,11 @@ public class Config {
 
 
     //HLL length
-    public static int HLLsize = 8;
+    public static int HLLsize = 16;
 
     //Similarity Thresholds
-    public static double table_similarity = 0.45;
+    public static double table_similarity = 0.3;
     public static double column_similarity = 0;
+    public static int number_tables = 1652771;
 
 }
