@@ -14,7 +14,6 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -111,8 +110,11 @@ public final class InputReader {
                             doc.add(new TextField(Palmetto.DEFAULT_TEXT_INDEX_FIELD_NAME, processed_schema, TextField.Store.YES));
                             try {
                                 //add the document n time where n is the frequency of this schema
+
                                     for (int i = 0; i < Integer.parseInt(freq); i++)
                                         writer.addDocument(doc);
+
+
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 System.exit(1);

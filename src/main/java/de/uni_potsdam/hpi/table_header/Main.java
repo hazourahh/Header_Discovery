@@ -14,6 +14,7 @@ import org.aksw.palmetto.aggregation.ArithmeticMean;
 import org.aksw.palmetto.calculations.direct.CondProbConfirmationMeasure;
 import org.aksw.palmetto.subsets.OnePreceding;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -34,7 +35,7 @@ public class Main {
         //--------------------------------Sample and build Htables---------------------
         //2. load or build the webtables sketch if it is not created
         //calculator.initialize(true,25); //run it with true only once to generate sample and train from the full dataset
-       Similarity_caculator.initialize(true,5);
+       Similarity_caculator.initialize(false,5);
 
 //----------------------------------- Testing ---------------------------------
 
@@ -56,7 +57,7 @@ public class Main {
                      //1-convert to htable
                      WTable w_table = WTable.fromString(json_table);
                      HTable current = w_table.Convert2Hyper();
-                     System.out.print("Table: " + current.get_id());
+                     //System.out.print();
                      //2- find topk for each header
                      Topk_candidates candidates = Similarity_caculator.calculate_similarity(current, k);
 
@@ -77,7 +78,7 @@ public class Main {
                      */
 
                    if (candidates.getScored_candidates().length == 0) {
-                       write_to_disk(w_table,null,-1,1);
+                       write_to_disk(w_table,Collections.<String>emptyList(),-1,1);
                      } else {
                          try {
                              Topk_candidates schema_candidates= blinder.coherant_blind_candidate(candidates, m);
@@ -91,14 +92,17 @@ public class Main {
                                  // System.out.println(current.get_id().replace(",", " ")+";"+String.join("-",cand.getSchema())+";"+String.join("-",current.getHeaders())+";"+cand.getSimilarity_score()+"\n");
                              });
                              if (result.isEmpty())
-                                 write_to_disk(w_table,null,-2,1);
+                                 write_to_disk(w_table, Collections.<String>emptyList(),-2,1);
                          } catch (Exception e) {
                              System.err.println("something went wrong");
+                             e.printStackTrace();
+
+
                          }
 
                      }
                      long stopTime = System.currentTimeMillis();
-                     System.out.println("--> done in "+ (stopTime - startTime)/1000);
+                     System.out.println("Table: " + current.get_id()+"--> done in "+ (stopTime - startTime)/1000);
                   }
                   );
 

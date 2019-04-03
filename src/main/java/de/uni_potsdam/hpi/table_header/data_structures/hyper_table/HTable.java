@@ -14,9 +14,11 @@ public class HTable implements Serializable {
     private String Name;/* table caption or file name in case of csv input file */
     private List<Column> Columns = new ArrayList<>();/* Columns (Label and HLL) */
 
+
     public String get_id() {
         return _id;
     }
+
 
     /**
      * Constructor

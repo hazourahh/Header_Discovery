@@ -55,11 +55,11 @@ public final class Config {
 
 
     //HLL length
-    public static int HLLsize = 16;
+    public static int HLLsize = 8;
 
     //Similarity Thresholds
-    public static double table_similarity = 0.3;
-    public static double column_similarity = 0;
+    public static double table_similarity = 0.4;
+    public static double column_similarity = 0.3;
     public static int number_tables = 1652771;
 
 }

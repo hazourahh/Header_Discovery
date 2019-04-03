@@ -10,10 +10,13 @@ import org.aksw.palmetto.Coherence;
 import org.aksw.palmetto.DirectConfirmationBasedCoherence;
 import org.aksw.palmetto.Palmetto;
 import org.aksw.palmetto.aggregation.Aggregation;
+import org.aksw.palmetto.aggregation.ArithmeticMean;
+import org.aksw.palmetto.calculations.direct.CondProbConfirmationMeasure;
 import org.aksw.palmetto.calculations.direct.DirectConfirmationMeasure;
 import org.aksw.palmetto.corpus.CorpusAdapter;
 import org.aksw.palmetto.corpus.lucene.LuceneCorpusAdapter;
 import org.aksw.palmetto.prob.bd.BooleanDocumentProbabilitySupplier;
+import org.aksw.palmetto.subsets.OnePreceding;
 import org.aksw.palmetto.subsets.Segmentator;
 import org.apache.jena.ext.com.google.common.collect.Lists;
 import org.apache.lucene.index.DirectoryReader;
@@ -23,10 +26,7 @@ import org.apache.lucene.store.FSDirectory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 /**
  * @author Hazar Harmouch
@@ -47,7 +47,7 @@ class Coherent_Blinder {
      * @param confirmation
      * @param aggregation
      */
-   public Coherent_Blinder(Segmentator segmentation, DirectConfirmationMeasure confirmation, Aggregation aggregation)
+   public  Coherent_Blinder(Segmentator segmentation, DirectConfirmationMeasure confirmation, Aggregation aggregation)
     { try {
         //build a coherence object based on the input
         CorpusAdapter corpusAdapter = LuceneCorpusAdapter.create(Config.index_Folder, Palmetto.DEFAULT_TEXT_INDEX_FIELD_NAME);

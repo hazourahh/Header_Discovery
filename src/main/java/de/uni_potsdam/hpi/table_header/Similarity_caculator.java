@@ -1,7 +1,7 @@
 package de.uni_potsdam.hpi.table_header;
 
 import com.clearspring.analytics.stream.cardinality.CardinalityMergeException;
-import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
+import com.clearspring.analytics.stream.cardinality.HyperLogLog;
 import de.uni_potsdam.hpi.table_header.Util.Sampler;
 import de.uni_potsdam.hpi.table_header.data_structures.Result.Header_Candidate;
 import de.uni_potsdam.hpi.table_header.data_structures.Result.Topk_candidates;
@@ -66,7 +66,7 @@ class Similarity_caculator {
                         if (t.getNumHeaderRows() == 1 &&
                                 !t.has_missing_header() &&
                                 t.getNumericColumns().length < 3 &&
-                                //t.getNumCols()<6 &&
+                                t.getNumCols()<11 &&
                                 check_header_quality(t.getHeaders())
                         )
                             ResultWriter.add2Result(line + "\n", Config.Output.TEST_SET, Config.FULL_WIKI_FILENAME);
@@ -100,15 +100,15 @@ class Similarity_caculator {
                 // calculate_wiki_tables_statistics(train_tables.get(), Config.FULL_WIKI_FILENAME);
 
                 //3-convert to HLLwebtables and write headers to the index
-                try {
-                    IndexWriter writer = InputReader.open_ACSDB_index(IndexWriterConfig.OpenMode.APPEND);
+               // try {
+                  //  IndexWriter writer = InputReader.open_ACSDB_index(IndexWriterConfig.OpenMode.APPEND);
 
                     train_tables.forEach(json_table -> {
-                        WTable wt = WTable.fromString(json_table);
+                     WTable wt = WTable.fromString(json_table);
 
                         if (!wt.has_missing_header_line()) {
                             HLLWEBTABLES.add(wt.Convert2Hyper());
-                            Document doc = new Document();
+                            /*Document doc = new Document();
                             doc.add(new TextField(Palmetto.DEFAULT_TEXT_INDEX_FIELD_NAME,
                                     String.join(" ",
                                             wt.getHeaders().stream().map(ee -> ee.replace(" ", "_")).map(String::trim).map(String::toLowerCase).collect(Collectors.toList()))
@@ -119,14 +119,14 @@ class Similarity_caculator {
                                 System.err.println("Could not write to ACSDB statistics");
                                 e.printStackTrace();
                                 System.exit(1);
-                            }
+                            }*/
                         }
                     });
-                } catch (IOException exp) {
+               /* } catch (IOException exp) {
                     System.err.println("Could not open ASDB statistics");
                     e.printStackTrace();
                     System.exit(1);
-                }
+                }*/
                 System.out.println("***done converting train dataset to HLL representation***");
 
                 // store the HLLwebtables
@@ -187,13 +187,13 @@ class Similarity_caculator {
                         input_col = inputtable.getColumns().get(j);
                         web_dist = web_col.cardinality();
                         input_dist = input_col.cardinality();
-                        HyperLogLogPlus union = new HyperLogLogPlus(Config.HLLsize);
+                        HyperLogLog union = new HyperLogLog(Config.HLLsize);
                         try {
                             union.addAll(web_col.getValues());
                             union.addAll(input_col.getValues());
                             union_dist = union.cardinality();
                             if (web_dist > 0 && input_dist > 0)
-                                overlap = (web_dist + input_dist - union_dist) / (float) union_dist;
+                                overlap = (web_dist + input_dist - union_dist) / (float) input_dist;
 
                         } catch (CardinalityMergeException e) {
                             e.printStackTrace();
@@ -208,7 +208,10 @@ class Similarity_caculator {
                                     //this.Name !=NULL &&
                                     //t.getName() !=NULL &&
                                     !StringUtils.isBlank(web_col.getLabel()) &&
-                                    !StringUtils.isBlank(input_col.getLabel()) && web_col.getLabel().length() <= 50   //TODO: check if this is the right length
+                                    !StringUtils.isBlank(input_col.getLabel()) &&
+                                     //TODO: check if this is the right length
+                                     web_col.getLabel().length() <= 25  &&
+                                    !web_col.getLabel().matches("[0-9]+")
 
                             ) {
                             /*StringBuilder result = new StringBuilder();
@@ -255,13 +258,13 @@ class Similarity_caculator {
     private static float findTableOverlap(HTable input, HTable webtable) {
         //TODO: try different metrics
         long LHS_dist, RHS_dist, union_dist;
-        HyperLogLogPlus LHS_union, RHS_union, union;
+        HyperLogLog LHS_union, RHS_union, union;
 
         float overlap = 0;
 
-        LHS_union = new HyperLogLogPlus(Config.HLLsize);
-        RHS_union = new HyperLogLogPlus(Config.HLLsize);
-        union = new HyperLogLogPlus(Config.HLLsize);
+        LHS_union = new HyperLogLog(Config.HLLsize);
+        RHS_union = new HyperLogLog(Config.HLLsize);
+        union = new HyperLogLog(Config.HLLsize);
 
         try {
 
@@ -316,7 +319,12 @@ class Similarity_caculator {
         if (headers.size() == 0) return false;
         // no empty header longer than 25 or only number
         for (int i = 0; i < headers.size(); i++) {
-            if (headers.get(i).isEmpty() || headers.get(i).equals(" ") || headers.get(i).length() > 25 || headers.get(i).matches("[0-9]+") || headers.get(i).contains(")") || headers.get(i).contains("("))
+            if (headers.get(i).isEmpty() ||
+                    headers.get(i).equals(" ") ||
+                    headers.get(i).length() > 25 ||
+                    headers.get(i).matches("[0-9]+") ||
+                    headers.get(i).contains(")") ||
+                    headers.get(i).contains("("))
                 return false;
         }
         // all unique

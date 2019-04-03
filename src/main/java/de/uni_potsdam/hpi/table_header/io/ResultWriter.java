@@ -121,6 +121,7 @@ public class ResultWriter {
 
     public static void writeJSON_Tables(Collection<WTable> tables, Config.Output type, String dataset) {
         tables.forEach(e -> ResultWriter.add2Result(e.convert2JSON() + "\n", type, dataset));
+
     }
 
 

@@ -5,12 +5,8 @@ import com.google.gson.GsonBuilder;
 import de.uni_potsdam.hpi.table_header.data_structures.hyper_table.HTable;
 import de.uni_potsdam.hpi.table_header.io.Config;
 import org.apache.commons.lang.StringUtils;
-
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -88,7 +84,6 @@ public class WTable implements Serializable {
         return tableId;
     }
 //--------------------------------------------------------------------------
-
     /***
      *
      * @return table caption as a name or section title if no caption
@@ -125,7 +120,7 @@ public class WTable implements Serializable {
      */
     public HTable Convert2Hyper() {
 
-        HTable hyper_table = new HTable(get_id(), getTableName(), getHeaders(), Config.HLLsize);
+        HTable hyper_table = new HTable(get_id(),getTableName(), getHeaders(), Config.HLLsize);
         for (int i = 0; i < hyper_table.getNumberCols(); i++) {
             Set column_value = getColumnValues(i);
             if (column_value.size() == 0) {
@@ -146,7 +141,7 @@ public class WTable implements Serializable {
         StringBuilder label = new StringBuilder();
         //TODO: concatenate the labels form all levels?
         //for (int i = 0; i < numHeaderRows; i++)
-        label.append(tableHeaders.get(numHeaderRows - 1).get(column_id).getText());//.append(" ");
+            label.append(tableHeaders.get(numHeaderRows-1).get(column_id).getText());//.append(" ");
         return label.toString();
     }
 
@@ -199,11 +194,11 @@ public class WTable implements Serializable {
     public boolean has_missing_header() {
         //TODO: if you added any null representation update here
         boolean null_seen = false;
-        List<String> headers = getHeaders();
-        if (headers == null || headers.isEmpty())
-            null_seen = true;
-        else
-            for (String Value : headers) if (StringUtils.isBlank(Value)) null_seen = true;
+        List<String> headers=getHeaders();
+        if(headers==null || headers.isEmpty())
+            null_seen =true;
+    else
+        for (String Value : headers) if (StringUtils.isBlank(Value)) null_seen = true;
 
         return null_seen;
     }
@@ -235,7 +230,7 @@ public class WTable implements Serializable {
      *   write the current table in csv representation
      * @param withheader rite header line or not
      */
-    public static void save_WTable_As_CSV(WTable wt, boolean withheader) {
+    public static void save_WTable_As_CSV(WTable wt,boolean withheader) {
 
         File directory = new File(Config.TABLEASCSV_Folder);
 
@@ -279,7 +274,7 @@ public class WTable implements Serializable {
         }
 
         final WTable other = (WTable) obj;
-        if ((this._id == null) ? (other._id != null) : !this._id.equals(other._id)) {
+        if ((this._id== null) ? (other._id != null) : !this._id.equals(other._id)) {
             return false;
         }
 

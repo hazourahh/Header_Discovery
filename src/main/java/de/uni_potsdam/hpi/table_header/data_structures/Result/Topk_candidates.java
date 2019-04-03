@@ -37,7 +37,6 @@ public class Topk_candidates {
             can.setSimilarity_score(Math.max(can.getSimilarity_score(), current.getSimilarity_score()));
         }
         candidates[col_index].add(can);
-
     }
 
     public void print() {
