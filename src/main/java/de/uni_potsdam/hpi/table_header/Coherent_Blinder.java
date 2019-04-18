@@ -94,16 +94,19 @@ class Coherent_Blinder {
 
     public Topk_candidates coherant_blind_candidate(Topk_candidates candidates, int k) {
 
-        String[][] candidate_array;
+
+        //to caculate top k coherent candidate list
+        Topk_candidates schema_candidates = new Topk_candidates(k, 1);
         {
-            List<List<String>> result;
-            { //build permutations and process all strings to have _ instead space to mach the index
+            List<List<String>> result; //lists to keep the order of top k headers
+            {
+                //build permutations and process all strings to have _ instead space to mach the index
                 List<List<String>> candidates_list = new ArrayList<>();
                 for (int i = 0; i < candidates.getScored_candidates().length; i++) {
                     List<String> temp = new ArrayList<>();
                     if (candidates.getScored_candidates()[i].isEmpty()) {
-                        temp.add("");
-                        candidates_list.add(temp);
+                        temp.add("NORESULT");
+                        //candidates_list.add(temp);
                     }
                     for (Candidate j : candidates.getScored_candidates()[i]) {
                         String header_temp = ((Header_Candidate) j).getHeader().trim().toLowerCase().replaceAll(" ", "_");
@@ -115,31 +118,95 @@ class Coherent_Blinder {
             }
 
             // convert to palmeto input
-            int i = 0;
-            candidate_array = new String[result.size()][];
+            //int i = 0;
+            //candidate_array = new String[result.size()][];
+            //CartesianIterable <String> ci = new CartesianIterable <String> (candidates_list);
+
             for (List<String> schema_candidate : result) {
-                String[] schema_candidate_prep = schema_candidate.stream().toArray(String[]::new);
-                candidate_array[i++] = schema_candidate_prep;
+                String[] schema_candidate_prep = schema_candidate.stream().filter(e->!e.equals("NORESULT")).toArray(String[]::new);
+                //candidate_array[i++] = schema_candidate_prep;
+                String[][] candidate_array = new String[1][];
+                candidate_array[0] = schema_candidate_prep;
+                double coherences[] = coherence.calculateCoherences(candidate_array);
+                if ((schema_candidate_prep != null) && (schema_candidate_prep.length > 0)) {
+
+                    schema_candidates.add_candidate(0,
+                            new Schema_Candidate(Arrays.asList(schema_candidate_prep), coherences[0]));
+
             }
         }
-        //caculate top k coherent candidate list
-        Topk_candidates schema_candidates = new Topk_candidates(k, 1);
-        double coherences[] = coherence.calculateCoherences(candidate_array);
-        int j = 0;
-        for (String[] schema_candidate : candidate_array) {
-            if ((schema_candidate != null) && (schema_candidate.length > 0)) {
-
-                schema_candidates.add_candidate(0,
-                        new Schema_Candidate(Arrays.asList(schema_candidate), coherences[j]));
-            }
-            j++;
+//          double coherences[] = coherence.calculateCoherences(candidate_array);
+//        int j = 0;
+//        for (String[] schema_candidate : candidate_array) {
+//            if ((schema_candidate != null) && (schema_candidate.length > 0)) {
+//
+//                schema_candidates.add_candidate(0,
+//                        new Schema_Candidate(Arrays.asList(schema_candidate), coherences[j]));
+//            }
+//            j++;
         }
 return schema_candidates;
     }
 
 
     private <T> boolean containsUnique(List<T> list) {
-        return list.stream().allMatch(new HashSet<>()::add);
+        return list.stream().filter(e->e!="NORESULT").allMatch(new HashSet<>()::add);
     }
 
+}
+
+
+class CartesianIterable <T> implements Iterable <List <T>> {
+
+    private List <List <T>> lilio;
+
+    public CartesianIterable (List <List <T>> llo) {
+        lilio = llo;
+    }
+
+    public Iterator <List <T>> iterator () {
+        return new CartesianIterator <T> (lilio);
+    }
+}
+
+class CartesianIterator <T> implements Iterator <List <T>> {
+
+    private final List <List <T>> lilio;
+    private int current = 0;
+    private final long last;
+
+    public CartesianIterator (final List <List <T>> llo) {
+        lilio = llo;
+        long product = 1L;
+        for (List <T> lio: lilio)
+            product *= lio.size ();
+        last = product;
+    }
+
+    public boolean hasNext () {
+        return current != last;
+    }
+
+    public List <T> next () {
+        ++current;
+        return get (current - 1, lilio);
+    }
+
+    public void remove () {
+        ++current;
+    }
+
+    private List<T> get (final int n, final List <List <T>> lili) {
+        switch (lili.size ())
+        {
+            case 0: return new ArrayList <T> (); // no break past return;
+            default: {
+                List <T> inner = lili.get (0);
+                List <T> lo = new ArrayList <T> ();
+                lo.add (inner.get (n % inner.size ()));
+                lo.addAll (get (n / inner.size (), lili.subList (1, lili.size ())));
+                return lo;
+            }
+        }
+    }
 }

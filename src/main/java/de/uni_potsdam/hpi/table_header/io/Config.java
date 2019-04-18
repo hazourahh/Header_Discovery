@@ -57,9 +57,14 @@ public final class Config {
     //HLL length
     public static int HLLsize = 8;
 
-    //Similarity Thresholds
-    public static double table_similarity = 0.4;
-    public static double column_similarity = 0.3;
-    public static int number_tables = 1652771;
+    //experiments config
+    public static  int k = 10; //to choose top K candidate for each header
+    public static int m = 10; //to choose top m candidate for each schema
+    public static double table_similarity = 0.4;  // jaccard similarity between tables is larger than this number if table_similarity_filtering is enabled
+    public static double column_similarity = 0.3; // the weighted containemnt is larger than this if table_similarity_weighting and table_similarity_filtering are enabled
+    public static int number_tables = 1652771;  // for sampling
+    public static boolean table_similarity_weighting=true;    // weight the column similarity by table similarity if table_similarity_filtering is enabled
+    public static boolean table_similarity_filtering=true;   //filter on table similarity
+    public static double table_similarity_weight=0.5; // how much weight for the tables similarity in the weighted score
 
 }

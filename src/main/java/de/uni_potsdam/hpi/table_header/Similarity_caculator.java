@@ -58,15 +58,19 @@ class Similarity_caculator {
 
             //3- sampling to build test datasets
             //TODO: check all this critiria to check the quality of test set
+
             HashSet<String> test = Sampler.get_ReservoirSample(Tables_Supplier.stream(), sampling_percentage * Config.number_tables / 100);
+            //HashSet<String> test = Sampler.get_ReservoirSample(Tables_Supplier.stream(), 4000);
             test.forEach(
                     line ->
                     {
                         WTable t = WTable.fromString(line);
                         if (t.getNumHeaderRows() == 1 &&
                                 !t.has_missing_header() &&
+                                t.getNumDataRows()>2 &&
                                 t.getNumericColumns().length < 3 &&
                                 t.getNumCols()<11 &&
+                                t.getNumCols()>=2 &&
                                 check_header_quality(t.getHeaders())
                         )
                             ResultWriter.add2Result(line + "\n", Config.Output.TEST_SET, Config.FULL_WIKI_FILENAME);
@@ -165,6 +169,7 @@ class Similarity_caculator {
      * @param k          top k candidate to keep
      */
     public static Topk_candidates calculate_similarity(HTable inputtable, int k) {
+
         //topk for each column
         Topk_candidates candidates = new Topk_candidates(k, inputtable.getNumberCols());
 
@@ -174,13 +179,15 @@ class Similarity_caculator {
 
             //TODO: try other metrics
             long web_dist, input_dist, union_dist;
-            float overlap = 0, weighted_overlap, table_overlap;
+            double overlap = 0, weighted_overlap, table_overlap=0;
             Column web_col, input_col;
 
             //table similarity (context similarity)
-            table_overlap = findTableOverlap(inputtable, webtable);
+            if(Config.table_similarity_filtering)
+                 table_overlap = findTableOverlap(inputtable, webtable);
 
-            if (table_overlap > Config.table_similarity) {
+            if ((Config.table_similarity_filtering && table_overlap > Config.table_similarity) || (!Config.table_similarity_filtering))
+            {
                 for (int i = 0; i < webtable.getColumns().size(); i++) {
                     for (int j = 0; j < inputtable.getColumns().size(); j++) {
                         web_col = webtable.getColumns().get(i);
@@ -200,7 +207,10 @@ class Similarity_caculator {
                             System.exit(1);
                         }
                         //calculate the overlap and add results
-                        weighted_overlap = overlap * table_overlap; //comment this to go back to pure jaccard
+                        if(Config.table_similarity_filtering && Config.table_similarity_weighting)
+                        weighted_overlap = overlap * (Config.table_similarity_weight* table_overlap);
+                        else
+                        weighted_overlap = overlap;
                         try {
                             if (weighted_overlap > Config.column_similarity &&
                                     web_col.getLabel() != null &&
@@ -268,25 +278,29 @@ class Similarity_caculator {
 
         try {
 
-            for (Column col : webtable.getColumns())
+            for (Column col : webtable.getColumns()) {
                 LHS_union.addAll(col.getValues());
+                union.addAll(col.getValues());
+            }
             //cardinality of bag of words of a webtable
             LHS_dist = LHS_union.cardinality();
 
-            for (Column col : input.getColumns())
+            for (Column col : input.getColumns()) {
                 RHS_union.addAll(col.getValues());
+                union.addAll(col.getValues());
+            }
             //cardinality of bag of words of a inputtable
             RHS_dist = RHS_union.cardinality();
 
 
-            union.addAll(LHS_union);
-            union.addAll(RHS_union);
+            //union.addAll(LHS_union);
+           // union.addAll(RHS_union);
             //cardinality of bag of words of the union
             union_dist = union.cardinality();
 
             //intersection cardinality according to Inclusion-exclusion principle
             if (LHS_dist > 0 && RHS_dist > 0)
-                overlap = (LHS_dist + RHS_dist - union_dist) / (float) union_dist;
+                overlap = (LHS_dist + RHS_dist - union_dist) / (float) union_dist ;
 
         } catch (CardinalityMergeException e) {
             e.printStackTrace();

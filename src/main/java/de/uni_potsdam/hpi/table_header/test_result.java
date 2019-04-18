@@ -4,6 +4,7 @@ import com.github.andrewoma.dexx.collection.ArrayList;
 import de.uni_potsdam.hpi.table_header.io.Config;
 import de.uni_potsdam.hpi.table_header.io.InputReader;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.text.similarity.JaroWinklerDistance;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,33 +25,46 @@ public class test_result {
         Pattern pattern_schema = Pattern.compile("-");
         BufferedWriter bw = null;
         FileWriter fw = null;
-        String out_file_name = "result_pre_mc_counting.csv";
+        String out_file_name = "result_exp1_counting.csv";
         File file = new File(out_file_name);
 
-        try (Stream<String> lines = Files.lines(Paths.get("result_pre_mc.csv"))) {
+        try (Stream<String> lines = Files.lines(Paths.get("result_exp1.csv"))) {
             // if file doesnt exists, then create it
             if (!file.exists()) {
                 file.createNewFile();
             }
             fw = new FileWriter(file.getAbsoluteFile(), false);
             bw = new BufferedWriter(fw);
+            float counter2=0;
 
             for (String line:  lines.collect(Collectors.toList()) )
                    { List<String> columns=Arrays.asList(pattern_line.split(line));
-                   int counter=0;
-                   if(!StringUtils.isBlank(columns.get(6)))
+                   float counter=0;
+                   if(!StringUtils.isBlank(columns.get(7)) && !columns.get(7).matches("[-]+") )
                    {
-                       List<String> result=Arrays.asList(pattern_schema.split(columns.get(6)));
-                       List<String> original=Arrays.asList(pattern_schema.split(columns.get(7)));
-                       for (int i=0;i<result.size();i++) {
-                           if(result.get(i).trim().equals((original.get(i).trim().toLowerCase())))
-                               counter++;
+                       List<String> result=Arrays.asList(pattern_schema.split(columns.get(7)));
+                       List<String> original=Arrays.asList(pattern_schema.split(columns.get(8)));
+                       JaroWinklerDistance distance=new JaroWinklerDistance();
+                       if(original.size()==result.size()) counter2++;
+                       for (int i=0;i<Math.min(result.size(),original.size());i++) {
+                           try {
+                               if (result.get(i).trim().equals((original.get(i).trim().toLowerCase()))) //TODO: change here for counting
+                                   // if(distance.apply(result.get(i).trim(),original.get(i).trim().toLowerCase())>0.7)
+                                   counter++;
+                           }catch (Exception e)
+                           {
+                               System.out.println(line);
+                           }
 
                        }
+                       counter=counter/result.size();
+
 
                    }
+
                        bw.write(line+";"+counter+"\n");
                    }
+            System.out.println(counter2);
 
         } catch (IOException e) {
             e.printStackTrace();
