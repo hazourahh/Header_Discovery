@@ -25,10 +25,10 @@ public class test_result {
         Pattern pattern_schema = Pattern.compile("-");
         BufferedWriter bw = null;
         FileWriter fw = null;
-        String out_file_name = "result_exp1_counting.csv";
+        String out_file_name = "result_counting_exact.csv";
         File file = new File(out_file_name);
 
-        try (Stream<String> lines = Files.lines(Paths.get("result_exp1.csv"))) {
+        try (Stream<String> lines = Files.lines(Paths.get("result_.csv"))) {
             // if file doesnt exists, then create it
             if (!file.exists()) {
                 file.createNewFile();
@@ -46,7 +46,7 @@ public class test_result {
                        List<String> original=Arrays.asList(pattern_schema.split(columns.get(8)));
                        JaroWinklerDistance distance=new JaroWinklerDistance();
                        if(original.size()==result.size()) counter2++;
-                       for (int i=0;i<Math.min(result.size(),original.size());i++) {
+                       for (int i=0;i<result.size();i++) {
                            try {
                                if (result.get(i).trim().equals((original.get(i).trim().toLowerCase()))) //TODO: change here for counting
                                    // if(distance.apply(result.get(i).trim(),original.get(i).trim().toLowerCase())>0.7)

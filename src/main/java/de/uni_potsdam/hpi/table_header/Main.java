@@ -33,7 +33,7 @@ public class Main {
         //--------------------------------Sample and build Htables---------------------
         //2. load or build the webtables sketch if it is not created
         //calculator.initialize(true,25); //run it with true only once to generate sample and train from the full dataset
-        Similarity_caculator.initialize(false, 5);
+        Similarity_caculator.initialize(true, 5);
         Coherent_Blinder blinder = new Coherent_Blinder(new OnePreceding(), new CondProbConfirmationMeasure(), new ArithmeticMean());
 
 //----------------------------------- Testing ---------------------------------
@@ -103,6 +103,7 @@ public class Main {
                                 write_to_disk(w_table, Collections.<String>emptyList(), -2, 1);
                             }
                         } catch (Exception e) {
+
                             System.err.println("something went wrong");
                             // e.printStackTrace();
                         }
@@ -146,7 +147,7 @@ public class Main {
                 original_schema +
                 ";" +
                 score + "\n", Config.Output.RESULT, "");
-                
+
     }
 
 }

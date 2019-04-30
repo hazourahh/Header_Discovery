@@ -13,12 +13,7 @@ import de.uni_potsdam.hpi.table_header.io.Config;
 import de.uni_potsdam.hpi.table_header.io.InputReader;
 import de.uni_potsdam.hpi.table_header.io.ResultWriter;
 import de.uni_potsdam.hpi.table_header.io.Serializer;
-import org.aksw.palmetto.Palmetto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -43,8 +38,6 @@ class Similarity_caculator {
      */
     //TODO: add capability to update the tables if they are already stored
     public static void initialize(boolean full_corpus, int sampling_percentage) {
-        // check if the HLLwebtables is already stored to load it and if not re-create it
-
 
         //if we have the full corpus we build testing dataset and then convert to Hyper representation the rest
         if (full_corpus) {
@@ -61,20 +54,26 @@ class Similarity_caculator {
 
             HashSet<String> test = Sampler.get_ReservoirSample(Tables_Supplier.stream(), sampling_percentage * Config.number_tables / 100);
             //HashSet<String> test = Sampler.get_ReservoirSample(Tables_Supplier.stream(), 4000);
+
             test.forEach(
-                    line ->
-                    {
+                   line ->
+                    { //TODO: check the quality of a test table
+                        //1-has one header row
+                        //2-no missing headers
+                        //3-rows>3   cols>2   numeric-col<3
+                        //4- no empty header or header contains ( or ) or only numbers or  longer than 25 characters
                         WTable t = WTable.fromString(line);
-                        if (t.getNumHeaderRows() == 1 &&
+                        if (    t.getNumHeaderRows() == 1 &&
                                 !t.has_missing_header() &&
-                                t.getNumDataRows()>2 &&
-                                t.getNumericColumns().length < 3 &&
-                                t.getNumCols()<11 &&
-                                t.getNumCols()>=2 &&
+                                !(t.getNumDataRows()<3 || t.getNumCols()<2) &&
+                                t.getNumericColumns().length < 2 &&
+                                //t.getNumCols()<11 &&
                                 check_header_quality(t.getHeaders())
                         )
                             ResultWriter.add2Result(line + "\n", Config.Output.TEST_SET, Config.FULL_WIKI_FILENAME);
-                    }
+                        else
+                            ResultWriter.add2Result(line + "\n", Config.Output.TRAIN_SET, Config.FULL_WIKI_FILENAME);
+                   }
             );
             System.out.println("***done sampling and writing test data***");
 
@@ -109,8 +108,8 @@ class Similarity_caculator {
 
                     train_tables.forEach(json_table -> {
                      WTable wt = WTable.fromString(json_table);
-
-                        if (!wt.has_missing_header_line()) {
+                        //filter out low quality tables
+                        if (!wt.has_missing_header_line() &&  !(wt.getNumDataRows()<3 || wt.getNumCols()<2)) {
                             HLLWEBTABLES.add(wt.Convert2Hyper());
                             /*Document doc = new Document();
                             doc.add(new TextField(Palmetto.DEFAULT_TEXT_INDEX_FIELD_NAME,
@@ -329,7 +328,8 @@ class Similarity_caculator {
 
     //------------------------------------------------- Sampling---------------------------
 
-    private static boolean check_header_quality(List<String> headers) {  //not empty
+    private static boolean check_header_quality(List<String> headers) {
+        //not empty
         if (headers.size() == 0) return false;
         // no empty header longer than 25 or only number
         for (int i = 0; i < headers.size(); i++) {

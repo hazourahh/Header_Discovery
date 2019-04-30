@@ -127,11 +127,15 @@ class Coherent_Blinder {
                 //candidate_array[i++] = schema_candidate_prep;
                 String[][] candidate_array = new String[1][];
                 candidate_array[0] = schema_candidate_prep;
-                double coherences[] = coherence.calculateCoherences(candidate_array);
+                double coherences[]={};
+                if(schema_candidate_prep.length<2)
+                    coherences[0]=0;
+                else
+                    coherences= coherence.calculateCoherences(candidate_array);
                 if ((schema_candidate_prep != null) && (schema_candidate_prep.length > 0)) {
 
                     schema_candidates.add_candidate(0,
-                            new Schema_Candidate(Arrays.asList(schema_candidate_prep), coherences[0]));
+                            new Schema_Candidate(schema_candidate, coherences[0]));
 
             }
         }
