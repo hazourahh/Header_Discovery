@@ -33,7 +33,7 @@ public class Main {
         //--------------------------------Sample and build Htables---------------------
         //2. load or build the webtables sketch if it is not created
         //calculator.initialize(true,25); //run it with true only once to generate sample and train from the full dataset
-        Similarity_caculator.initialize(true, 5);
+        Similarity_caculator.initialize(false, 5);
         Coherent_Blinder blinder = new Coherent_Blinder(new OnePreceding(), new CondProbConfirmationMeasure(), new ArithmeticMean());
 
 //----------------------------------- Testing ---------------------------------
@@ -53,13 +53,11 @@ public class Main {
                                     ",table_similarity_filtering:" + Config.table_similarity_filtering+
                                      ",table_similarity_weight:" + Config.table_similarity_weight+
                                      "]\n", Config.Output.RESULT, "");
-        test_set.parallel().forEach(
+        test_set.forEach(
                 json_table ->
                 {    long startTime=0,stopTime=0;
                     float topk_time = 0,coherance_time=0;
                     boolean resultss=true;
-
-
 
                     //1-convert to htable----------------------------------------
                     WTable w_table = WTable.fromString(json_table);
@@ -104,7 +102,8 @@ public class Main {
                             }
                         } catch (Exception e) {
 
-                            System.err.println("something went wrong");
+                            System.err.println("something went wrong with table"+ w_table.get_id());
+                            write_to_disk(w_table, Collections.<String>emptyList(), -3, 1);
                             // e.printStackTrace();
                         }
                     }

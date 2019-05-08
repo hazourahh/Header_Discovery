@@ -45,6 +45,16 @@ class Similarity_caculator {
             //1- parse full web table corpus
             HashSet<String> Tables_Supplier = InputReader.parse_wiki_tables_file(Config.FULL_WIKI_FILENAME).collect(Collectors.toCollection(HashSet::new));
 
+           /* Tables_Supplier.forEach(line ->
+                    {
+                        WTable wt = WTable.fromString(line);
+                        if ( wt.has_missing_header_line() ||  wt.getNumDataRows()<3 || wt.getNumCols()<2
+                        ) {System.out.println("IGNORE:"+wt.getTableName()+"("+wt.getNumCols()+","+wt.getNumDataRows()+")");}
+                        else { System.out.println(wt.getTableName()+"("+wt.getNumCols()+","+wt.getNumDataRows()+")");
+                            ResultWriter.add2Result(line + "\n", Config.Output.FILTERED_SET, Config.FULL_WIKI_FILENAME);
+                        }
+                    }
+            );*/
             //2- collect statistics
             //Wiki_Dataset_Statistics stat = calculate_wiki_tables_statistics(Tables_Supplier, Config.FULL_WIKI_FILENAME);
             //System.out.println("***statistics about full datasets***");
@@ -52,65 +62,66 @@ class Similarity_caculator {
             //3- sampling to build test datasets
             //TODO: check all this critiria to check the quality of test set
 
-            HashSet<String> test = Sampler.get_ReservoirSample(Tables_Supplier.stream(), sampling_percentage * Config.number_tables / 100);
+            HashSet<String> test = Sampler.get_ReservoirSample(Tables_Supplier.stream(), sampling_percentage * Config.number_tables_after_preprocessing / 100);
             //HashSet<String> test = Sampler.get_ReservoirSample(Tables_Supplier.stream(), 4000);
 
             test.forEach(
-                   line ->
+                    line ->
                     { //TODO: check the quality of a test table
                         //1-has one header row
                         //2-no missing headers
                         //3-rows>3   cols>2   numeric-col<3
                         //4- no empty header or header contains ( or ) or only numbers or  longer than 25 characters
                         WTable t = WTable.fromString(line);
-                        if (    t.getNumHeaderRows() == 1 &&
+                        if (t.getNumHeaderRows() == 1 &&
                                 !t.has_missing_header() &&
-                                !(t.getNumDataRows()<3 || t.getNumCols()<2) &&
-                                t.getNumericColumns().length < 2 &&
-                                //t.getNumCols()<11 &&
+                                t.getNumDataRows()>2 &&
+                                t.getNumericColumns().length < 3 &&
+                                t.getNumCols()<11 &&
+                                t.getNumCols()>=2 &&
                                 check_header_quality(t.getHeaders())
                         )
                             ResultWriter.add2Result(line + "\n", Config.Output.TEST_SET, Config.FULL_WIKI_FILENAME);
                         else
                             ResultWriter.add2Result(line + "\n", Config.Output.TRAIN_SET, Config.FULL_WIKI_FILENAME);
-                   }
+                    }
             );
             System.out.println("***done sampling and writing test data***");
 
             //5- write the rest as training data
-               Tables_Supplier.forEach(line -> {
-                    if (!test.contains(line))
-                        ResultWriter.add2Result(line + "\n", Config.Output.TRAIN_SET, Config.FULL_WIKI_FILENAME);
-                });
+            Tables_Supplier.forEach(line -> {
+                if (!test.contains(line))
+                    ResultWriter.add2Result(line + "\n", Config.Output.TRAIN_SET, Config.FULL_WIKI_FILENAME);
+            });
 
             System.out.println("***done writing train dataset ***");
         }
-            try {
+        try {
 
-                HLLWEBTABLES = (ArrayList<HTable>) Serializer.deserialize(Config.HYPERTABLE_FILENAME);
-                System.out.println("***done deserialize htables***");
+            HLLWEBTABLES = (ArrayList<HTable>) Serializer.deserialize(Config.HYPERTABLE_FILENAME);
+            System.out.println("***done deserialize htables***");
 
-            } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
 
 
-                //0- load or build schemata statistics
-                Coherent_Blinder.initialize();
+            //0- load or build schemata statistics
+            Coherent_Blinder.initialize();
 
-                //1- parse training data
-                Stream<String> train_tables = InputReader.parse_wiki_tables_file(Config.TRAINING_WIKI_FILENAME);
+            //1- parse training data
+            Stream<String> train_tables = InputReader.parse_wiki_tables_file(Config.TRAINING_WIKI_FILENAME);
 
-                // 2-caculate statistics
-                // calculate_wiki_tables_statistics(train_tables.get(), Config.FULL_WIKI_FILENAME);
+            // 2-caculate statistics
+            // calculate_wiki_tables_statistics(train_tables.get(), Config.FULL_WIKI_FILENAME);
 
-                //3-convert to HLLwebtables and write headers to the index
-               // try {
-                  //  IndexWriter writer = InputReader.open_ACSDB_index(IndexWriterConfig.OpenMode.APPEND);
+            //3-convert to HLLwebtables and write headers to the index
+            // try {
+            //  IndexWriter writer = InputReader.open_ACSDB_index(IndexWriterConfig.OpenMode.APPEND);
 
-                    train_tables.forEach(json_table -> {
-                     WTable wt = WTable.fromString(json_table);
-                        //filter out low quality tables
-                        if (!wt.has_missing_header_line() &&  !(wt.getNumDataRows()<3 || wt.getNumCols()<2)) {
-                            HLLWEBTABLES.add(wt.Convert2Hyper());
+            train_tables.forEach(json_table -> {
+                WTable wt = WTable.fromString(json_table);
+                //filter out low quality tables
+                if (!wt.has_missing_header_line())
+                    HLLWEBTABLES.add(wt.Convert2Hyper());
                             /*Document doc = new Document();
                             doc.add(new TextField(Palmetto.DEFAULT_TEXT_INDEX_FIELD_NAME,
                                     String.join(" ",
@@ -123,30 +134,24 @@ class Similarity_caculator {
                                 e.printStackTrace();
                                 System.exit(1);
                             }*/
-                        }
-                    });
-               /* } catch (IOException exp) {
-                    System.err.println("Could not open ASDB statistics");
-                    e.printStackTrace();
-                    System.exit(1);
-                }*/
-                System.out.println("***done converting train dataset to HLL representation***");
+            });
 
-                // store the HLLwebtables
-                store_HTables();
-                System.out.println("***done building and storing htables***");
+            System.out.println("***done converting train dataset to HLL representation***");
 
-            } catch (IOException e) {
-                System.err.println("Could not de-serialize the Hypertables");
-                e.printStackTrace();
-                System.exit(1);
-            } catch (ClassNotFoundException e) {
-                System.err.println("Could not cast the de-serialized tables arraylist");
-                e.printStackTrace();
-                System.exit(1);
-            }
+            // store the HLLwebtables
+            store_HTables();
+            System.out.println("***done building and storing htables***");
 
-    }
+        } catch (IOException e) {
+            System.err.println("Could not de-serialize the Hypertables");
+            e.printStackTrace();
+            System.exit(1);
+        } catch (ClassNotFoundException e) {
+            System.err.println("Could not cast the de-serialized tables arraylist");
+            e.printStackTrace();
+            System.exit(1);
+        }
+  }
 
     private static void store_HTables() {
         try {

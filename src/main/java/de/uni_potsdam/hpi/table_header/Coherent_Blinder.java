@@ -128,8 +128,10 @@ class Coherent_Blinder {
                 String[][] candidate_array = new String[1][];
                 candidate_array[0] = schema_candidate_prep;
                 double coherences[]={};
-                if(schema_candidate_prep.length<2)
+                if(schema_candidate_prep.length<2) {
+                    coherences=new double[1];
                     coherences[0]=0;
+                }
                 else
                     coherences= coherence.calculateCoherences(candidate_array);
                 if ((schema_candidate_prep != null) && (schema_candidate_prep.length > 0)) {

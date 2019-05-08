@@ -22,15 +22,17 @@ public final class Config {
 
     public static final String TRAINING_WIKI_FILENAME = "tables_train.json";
     public static final String TESTING_WIKI_FILENAME = "table_test.json";
+    public static final String FILTERED_FILENAME="tables_filtered.json";
     public static final String Input_acsdb_file = "acsdb.txt";
 
     //results
     public enum Output {
-        RESULT, SCHEMATA, NUMERC_NON, STATISTIC, WIDTH, LENGTH, NUMERIC, NON_NUMERIC, TABLES_MISSING_HEADERS, HEADERS, ACSDB, TABLEASCSV, TEST_SET, TRAIN_SET
+        RESULT, SCHEMATA, NUMERC_NON, STATISTIC, WIDTH, LENGTH, NUMERIC, NON_NUMERIC, TABLES_MISSING_HEADERS, HEADERS, ACSDB, TABLEASCSV, TEST_SET, TRAIN_SET, FILTERED_SET
     }
 
     public static final String ACSDB_FILENAME = Config.measurementsFolderPath + "acsdb";
     static final String Results_FILENAME;
+
     static final String HEADERS_FILENAME;
     public static final String HYPERTABLE_FILENAME = Config.measurementsFolderPath + "hypertables";
     static final String SCHEMATA_FILENAME;
@@ -39,6 +41,7 @@ public final class Config {
         Results_FILENAME = Config.measurementsFolderPath + "result.csv";
         HEADERS_FILENAME = Config.measurementsFolderPath + "headers.csv";
         SCHEMATA_FILENAME = Config.measurementsFolderPath + "schemata.csv";
+
     }
 
     static final String NUMERC_NON_FILENAME = Config.measurementsFolderPath + "numeric_non.csv";
@@ -63,6 +66,7 @@ public final class Config {
     public static double table_similarity = 0.4;  // jaccard similarity between tables is larger than this number if table_similarity_filtering is enabled
     public static double column_similarity = 0.3; // the weighted containemnt is larger than this if table_similarity_weighting and table_similarity_filtering are enabled
     public static int number_tables = 1652771;  // for sampling
+    public static int number_tables_after_preprocessing = 1078694;  // for sampling (574077 tables) filtered out
     public static boolean table_similarity_weighting=true;    // weight the column similarity by table similarity if table_similarity_filtering is enabled
     public static boolean table_similarity_filtering=true;   //filter on table similarity
     public static double table_similarity_weight=1; // how much weight for the tables similarity in the weighted score
