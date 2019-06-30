@@ -27,11 +27,11 @@ public final class Config {
 
     //results
     public enum Output {
-        RESULT, SCHEMATA, NUMERC_NON, STATISTIC, WIDTH, LENGTH, NUMERIC, NON_NUMERIC, TABLES_MISSING_HEADERS, HEADERS, ACSDB, TABLEASCSV, TEST_SET, TRAIN_SET, FILTERED_SET
+        RESULT,RESULT_PHASE1, SCHEMATA, NUMERC_NON, STATISTIC, WIDTH, LENGTH, NUMERIC, NON_NUMERIC, TABLES_MISSING_HEADERS, HEADERS, ACSDB, TABLEASCSV, TEST_SET, TRAIN_SET, FILTERED_SET
     }
 
     public static final String ACSDB_FILENAME = Config.measurementsFolderPath + "acsdb";
-    static final String Results_FILENAME;
+    static final String Results_FILENAME, Results_phase1_FILENAME;
 
     static final String HEADERS_FILENAME;
     public static final String HYPERTABLE_FILENAME = Config.measurementsFolderPath + "hypertables";
@@ -39,6 +39,7 @@ public final class Config {
 
     static {
         Results_FILENAME = Config.measurementsFolderPath + "result.csv";
+        Results_phase1_FILENAME = Config.measurementsFolderPath + "result_phase1.csv";
         HEADERS_FILENAME = Config.measurementsFolderPath + "headers.csv";
         SCHEMATA_FILENAME = Config.measurementsFolderPath + "schemata.csv";
 
@@ -61,10 +62,10 @@ public final class Config {
     public static int HLLsize = 8;
 
     //experiments config
-    public static  int k = 5; //to choose top K candidate for each header
+    public static  int k = 10; //to choose top K candidate for each header
     public static int m = 10; //to choose top m candidate for each schema
     public static double table_similarity = 0.4;  // jaccard similarity between tables is larger than this number if table_similarity_filtering is enabled
-    public static double column_similarity = 0.3; // the weighted containemnt is larger than this if table_similarity_weighting and table_similarity_filtering are enabled
+    public static double column_similarity = 0; // the weighted containemnt is larger than this if table_similarity_weighting and table_similarity_filtering are enabled
     public static int number_tables = 1652771;  // for sampling
     public static int number_tables_after_preprocessing = 1078694;  // for sampling (574077 tables) filtered out
     public static boolean table_similarity_weighting=true;    // weight the column similarity by table similarity if table_similarity_filtering is enabled

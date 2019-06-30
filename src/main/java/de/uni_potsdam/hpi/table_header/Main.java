@@ -3,6 +3,7 @@ package de.uni_potsdam.hpi.table_header;
 
 import com.google.common.collect.MinMaxPriorityQueue;
 import de.uni_potsdam.hpi.table_header.data_structures.Result.Candidate;
+import de.uni_potsdam.hpi.table_header.data_structures.Result.Header_Candidate;
 import de.uni_potsdam.hpi.table_header.data_structures.Result.Schema_Candidate;
 import de.uni_potsdam.hpi.table_header.data_structures.Result.Topk_candidates;
 import de.uni_potsdam.hpi.table_header.data_structures.hyper_table.HTable;
@@ -14,6 +15,7 @@ import org.aksw.palmetto.aggregation.ArithmeticMean;
 import org.aksw.palmetto.calculations.direct.CondProbConfirmationMeasure;
 import org.aksw.palmetto.subsets.OnePreceding;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,7 +55,7 @@ public class Main {
                                     ",table_similarity_filtering:" + Config.table_similarity_filtering+
                                      ",table_similarity_weight:" + Config.table_similarity_weight+
                                      "]\n", Config.Output.RESULT, "");
-        test_set.forEach(
+        test_set.parallel().forEach(
                 json_table ->
                 {    long startTime=0,stopTime=0;
                     float topk_time = 0,coherance_time=0;
@@ -68,14 +70,14 @@ public class Main {
                     startTime = System.currentTimeMillis();
 
                     Topk_candidates candidates = Similarity_caculator.calculate_similarity(current, Config.k);
-
+                    write_to_disk_phase1(w_table,current.getHeaders(),candidates);
                     stopTime = System.currentTimeMillis();
                     topk_time = (stopTime - startTime) / 1000;
 
                     //3-coherance blind ---------------------------------------
                     if (candidates.getScored_candidates().length == 0) {
                         resultss=false;
-                        write_to_disk(w_table, Collections.<String>emptyList(), -1, 1);
+                        write_to_disk(w_table,current.getHeaders(), Collections.<String>emptyList(), -1, 1);
                     } else {
 
                         try {
@@ -93,17 +95,17 @@ public class Main {
                             result.forEach(e ->
                             {
                                 Schema_Candidate cand = (Schema_Candidate) e;
-                                write_to_disk(w_table, cand.getSchema(), cand.getSimilarity_score(), counter.getAndIncrement());
+                                write_to_disk(w_table,current.getHeaders(), cand.getSchema(), cand.getSimilarity_score(), counter.getAndIncrement());
 
                                 // System.out.println(current.get_id().replace(",", " ")+";"+String.join("-",cand.getSchema())+";"+String.join("-",current.getHeaders())+";"+cand.getSimilarity_score()+"\n");
                             });
                             if (result.isEmpty()) {
-                                write_to_disk(w_table, Collections.<String>emptyList(), -2, 1);
+                                write_to_disk(w_table,current.getHeaders(), Collections.<String>emptyList(), -2, 1);
                             }
                         } catch (Exception e) {
 
                             System.err.println("something went wrong with table"+ w_table.get_id());
-                            write_to_disk(w_table, Collections.<String>emptyList(), -3, 1);
+                            write_to_disk(w_table, current.getHeaders(), Collections.<String>emptyList(), -3, 1);
                             // e.printStackTrace();
                         }
                     }
@@ -119,12 +121,46 @@ public class Main {
 
     }
 
+    static synchronized void write_to_disk_phase1(WTable wtable,List<String> original,Topk_candidates candidates)
+    { List<String> original_schema =  original.stream().map(ee -> ee.replace(" ", "_")).map(ee -> ee.replace("-", "_")).map(ee -> ee.toLowerCase())
+            .collect(Collectors.toList());
 
-    static synchronized void write_to_disk(WTable wtable, List<String> schema, double score, int k) {
+        for (int i = 0; i < candidates.getScored_candidates().length; i++) {
+            List<String> temp = new ArrayList<>();
+            if (candidates.getScored_candidates()[i].isEmpty()) {
+                temp.add("NORESULT");
+            }
+            for (Candidate j : candidates.getScored_candidates()[i]) {
+                String header_temp = ((Header_Candidate) j).getHeader().trim().toLowerCase().replaceAll(" ", "_");
+                temp.add(header_temp);
+            }
+            ResultWriter.add2Result(wtable.get_id().replace(";", " ") +
+                    ";" +
+                    wtable.getTableName().replace(";", " ").replace("\n", " ").replace("\r", "") +
+                    ";" +
+                    wtable.getPgTitle().replace(";", " ").replace("\n", " ").replace("\r", "") +
+                    ";" +
+                    wtable.getNumDataRows() +
+                    ";" +
+                    wtable.getNumCols() +
+                    ";" +
+                    wtable.getNumericColumns().length +
+                    ";" +
+                    original_schema.get(i) +
+                    ";" +
+                    String.join("-",temp)
+                    + "\n", Config.Output.RESULT_PHASE1, "");
+        }
+
+
+
+    }
+
+    static synchronized void write_to_disk(WTable wtable,List<String> original, List<String> schema, double score, int k) {
         String result_schema = "";
         result_schema = String.join("-", schema.stream().map(ee -> ee.replace(" ", "_")).map(ee -> ee.replace("-", "_"))
                 .collect(Collectors.toList()));
-        String original_schema = String.join("-", wtable.getHeaders().stream().map(ee -> ee.replace(" ", "_")).map(ee -> ee.replace("-", "_"))
+        String original_schema = String.join("-", original.stream().map(ee -> ee.replace(" ", "_")).map(ee -> ee.replace("-", "_"))
                 .collect(Collectors.toList()));
 
         ResultWriter.add2Result(wtable.get_id().replace(";", " ") +

@@ -2,6 +2,7 @@ package de.uni_potsdam.hpi.table_header;
 
 import com.clearspring.analytics.stream.cardinality.CardinalityMergeException;
 import com.clearspring.analytics.stream.cardinality.HyperLogLog;
+import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import de.uni_potsdam.hpi.table_header.Util.Sampler;
 import de.uni_potsdam.hpi.table_header.data_structures.Result.Header_Candidate;
 import de.uni_potsdam.hpi.table_header.data_structures.Result.Topk_candidates;
@@ -22,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 
 /**
  * @author Hazar Harmouch
@@ -62,7 +64,7 @@ class Similarity_caculator {
             //3- sampling to build test datasets
             //TODO: check all this critiria to check the quality of test set
 
-            HashSet<String> test = Sampler.get_ReservoirSample(Tables_Supplier.stream(), sampling_percentage * Config.number_tables_after_preprocessing / 100);
+            HashSet<String> test = Sampler.get_ReservoirSample(Tables_Supplier.stream(), sampling_percentage * Config.number_tables/ 100);
             //HashSet<String> test = Sampler.get_ReservoirSample(Tables_Supplier.stream(), 4000);
 
             test.forEach(
@@ -198,15 +200,20 @@ class Similarity_caculator {
                         input_col = inputtable.getColumns().get(j);
                         web_dist = web_col.cardinality();
                         input_dist = input_col.cardinality();
-                        HyperLogLog union = new HyperLogLog(Config.HLLsize);
+                        HyperLogLogPlus union = new HyperLogLogPlus(14,25);
+
+
                         try {
                             union.addAll(web_col.getValues());
                             union.addAll(input_col.getValues());
                             union_dist = union.cardinality();
-                            if (web_dist > 0 && input_dist > 0)
+
+                            if (input_dist  > 0 && web_dist > 0)
                                 overlap = (web_dist + input_dist - union_dist) / (float) input_dist;
 
-                        } catch (CardinalityMergeException e) {
+
+
+                        } catch (Exception e) {
                             e.printStackTrace();
                             System.exit(1);
                         }
@@ -272,13 +279,14 @@ class Similarity_caculator {
     private static float findTableOverlap(HTable input, HTable webtable) {
         //TODO: try different metrics
         long LHS_dist, RHS_dist, union_dist;
-        HyperLogLog LHS_union, RHS_union, union;
+
 
         float overlap = 0;
+        HyperLogLogPlus LHS_union, RHS_union, union;
+        LHS_union = new HyperLogLogPlus(14,25);
+        RHS_union = new HyperLogLogPlus(14,25);
+        union = new HyperLogLogPlus(14,25);
 
-        LHS_union = new HyperLogLog(Config.HLLsize);
-        RHS_union = new HyperLogLog(Config.HLLsize);
-        union = new HyperLogLog(Config.HLLsize);
 
         try {
 
@@ -288,25 +296,22 @@ class Similarity_caculator {
             }
             //cardinality of bag of words of a webtable
             LHS_dist = LHS_union.cardinality();
-
             for (Column col : input.getColumns()) {
                 RHS_union.addAll(col.getValues());
                 union.addAll(col.getValues());
             }
             //cardinality of bag of words of a inputtable
             RHS_dist = RHS_union.cardinality();
-
-
-            //union.addAll(LHS_union);
-           // union.addAll(RHS_union);
             //cardinality of bag of words of the union
             union_dist = union.cardinality();
+
 
             //intersection cardinality according to Inclusion-exclusion principle
             if (LHS_dist > 0 && RHS_dist > 0)
                 overlap = (LHS_dist + RHS_dist - union_dist) / (float) union_dist ;
 
-        } catch (CardinalityMergeException e) {
+
+        } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }

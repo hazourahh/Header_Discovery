@@ -29,6 +29,9 @@ public class ResultWriter {
         try {
             switch (type) {
                 //result files
+                case RESULT_PHASE1:
+                    out_file_name = Config.Results_phase1_FILENAME.replace(".csv", "_" + dataset + ".csv");
+                    break;
                 case RESULT:
                     out_file_name = Config.Results_FILENAME.replace(".csv", "_" + dataset + ".csv");
                     break;
