@@ -59,8 +59,9 @@ public final class Config {
 
 
     //HLL length
-    public static int HLLsize = 8;
-
+    //public static int HLLsize = 8;
+    public static int HLL_PLUS_P=14;
+    public static int HLL_PLUS_SP=25;
     //experiments config
     public static  int k = 10; //to choose top K candidate for each header
     public static int m = 10; //to choose top m candidate for each schema

@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.table_header;
+package de.uni_potsdam.hpi.table_header.benchmark;
 
 import com.github.andrewoma.dexx.collection.ArrayList;
 import de.uni_potsdam.hpi.table_header.io.Config;
@@ -18,17 +18,23 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class test_result {
+public class matching_percentage_caculator {
+
+// results has the following format
+// csv with ; as seperator
+// table_id; web_page; table_caption;#row; #columns; #numeric_columns; the order of the schema in the top k;  result_scheam; original_schema
+//last two fields are - separated strings where each part is a header and they preserve the input table column order
+// we here add an extra field contains a matching percentage between the result and original schema
 
     public static void main(String[] args) {
         Pattern pattern_line = Pattern.compile(";");
         Pattern pattern_schema = Pattern.compile("-");
         BufferedWriter bw = null;
         FileWriter fw = null;
-        String out_file_name = "result_counting_exact_exp2.csv";
+        String out_file_name = "result_counting_exact_exp6.csv";
         File file = new File(out_file_name);
 
-        try (Stream<String> lines = Files.lines(Paths.get("result_exp2.csv"))) {
+        try (Stream<String> lines = Files.lines(Paths.get("result_exp6.csv"))) {
             // if file doesnt exists, then create it
             if (!file.exists()) {
                 file.createNewFile();

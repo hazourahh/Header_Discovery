@@ -3,6 +3,7 @@ package de.uni_potsdam.hpi.table_header.data_structures.hyper_table;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLog;
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
+import de.uni_potsdam.hpi.table_header.io.Config;
 
 
 import java.io.Serializable;
@@ -24,15 +25,12 @@ public class Column implements Serializable {
      * Constructor
      *
      * @param label   header of the column
-     * @param HLLsize size of the hyperloglog representaion
      */
-    Column(String label, int HLLsize) {
+    Column(String label) {
         super();
         Label = label;
         //Values = new HyperLogLog(HLLsize);
-        Values = new HyperLogLogPlus(14,25);
-
-
+        Values = new HyperLogLogPlus(Config.HLL_PLUS_P,Config.HLL_PLUS_SP);
     }
 
     /**

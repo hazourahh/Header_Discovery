@@ -1,4 +1,4 @@
-package de.uni_potsdam.hpi.table_header;
+package de.uni_potsdam.hpi.table_header.benchmark;
 
 import de.uni_potsdam.hpi.table_header.data_structures.wiki_table.WTable;
 import de.uni_potsdam.hpi.table_header.io.Config;
@@ -11,7 +11,6 @@ import org.aksw.palmetto.calculations.direct.*;
 import org.aksw.palmetto.corpus.CorpusAdapter;
 import org.aksw.palmetto.corpus.lucene.LuceneCorpusAdapter;
 import org.aksw.palmetto.prob.bd.BooleanDocumentProbabilitySupplier;
-import org.aksw.palmetto.subsets.OneAny;
 import org.aksw.palmetto.subsets.OneOne;
 import org.aksw.palmetto.subsets.OnePreceding;
 import org.aksw.palmetto.subsets.OneSucceeding;
@@ -20,9 +19,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Coherance_test {
@@ -142,21 +139,21 @@ public class Coherance_test {
         if (columns.size() > 1 && columns.size() <11) {
             try {
                 System.out.println(String.join("-", test[0]));
-                double oneone_mc=coherence_oneone_mc.calculateCoherences(test)[0] ;
-                double oneone_md   =coherence_oneone_md.calculateCoherences(test)[0] ;
-                double   oneone_mf = coherence_oneone_mf.calculateCoherences(test)[0] ;
-                double   oneone_lr = coherence_oneone_lr.calculateCoherences(test)[0] ;
-                double   oneone_nlr = coherence_oneone_nlr.calculateCoherences(test)[0] ;
-                double    onepre_mc= coherence_onepre_mc.calculateCoherences(test)[0] ;
-                double  onepre_md  =  coherence_onepre_md.calculateCoherences(test)[0] ;
-                double   onepre_mf =  coherence_onepre_mf.calculateCoherences(test)[0] ;
-                double   onepre_lr =  coherence_onepre_lr.calculateCoherences(test)[0];
-                double   onepre_nlr =  coherence_onepre_nlr.calculateCoherences(test)[0];
-                double    onesuc_mc=  coherence_onesuc_mc.calculateCoherences(test)[0];
-                double    onesuc_md=  coherence_onesuc_md.calculateCoherences(test)[0];
-                double   onesuc_mf = coherence_onesuc_mf.calculateCoherences(test)[0] ;
-                double    onesuc_lr= coherence_onesuc_lr.calculateCoherences(test)[0] ;
-                double   onesuc_nlr = coherence_onesuc_nlr.calculateCoherences(test)[0] ;
+                double oneone_mc=coherence_oneone_mc.calculateCoherences(test)[0] ; //0-1
+                double oneone_md   =coherence_oneone_md.calculateCoherences(test)[0] ;  //-0.036562919 to 0.999997318
+                double   oneone_mf = coherence_oneone_mf.calculateCoherences(test)[0] ; //-1 to 1
+                double   oneone_lr = coherence_oneone_lr.calculateCoherences(test)[0] ; // -17.948670854 to 12.828780835
+                double   oneone_nlr = coherence_oneone_nlr.calculateCoherences(test)[0] ;//-0.649584059 to 1.000000058
+                double    onepre_mc= coherence_onepre_mc.calculateCoherences(test)[0] ; //0 to 1
+                double  onepre_md  =  coherence_onepre_md.calculateCoherences(test)[0] ; //-0.058205651 to 0.999997318
+                double   onepre_mf =  coherence_onepre_mf.calculateCoherences(test)[0] ;//-1 to 1
+                double   onepre_lr =  coherence_onepre_lr.calculateCoherences(test)[0]; //-17.948670854 to 12.828780835
+                double   onepre_nlr =  coherence_onepre_nlr.calculateCoherences(test)[0]; //-0.649584059 to 1.000000058
+                double    onesuc_mc=  coherence_onesuc_mc.calculateCoherences(test)[0];//0 to 1
+                double    onesuc_md=  coherence_onesuc_md.calculateCoherences(test)[0]; //-0.058205651 to 0.999997318
+                double   onesuc_mf = coherence_onesuc_mf.calculateCoherences(test)[0] ; //-1 to 1
+                double    onesuc_lr= coherence_onesuc_lr.calculateCoherences(test)[0] ; // -17.948670854 to 12.828780835
+                double   onesuc_nlr = coherence_onesuc_nlr.calculateCoherences(test)[0] ;// -0.649584059 to 1.000000058
                 synchronized(Coherance_test.class) {
                     bw.write(String.join("-", test[0]) + ";" +
                             oneone_mc + ";" +

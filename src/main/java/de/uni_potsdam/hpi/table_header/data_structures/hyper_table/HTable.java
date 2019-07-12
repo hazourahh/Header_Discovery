@@ -24,13 +24,12 @@ public class HTable implements Serializable {
      * Constructor
      * @param name table caption
      * @param columns_labels Arraylist of Columns
-     * @param HLLsize Hyperloglog size
      */
-    public HTable(String id,String name, List<String> columns_labels, int HLLsize) {
+    public HTable(String id,String name, List<String> columns_labels) {
         super();
         Name = name;
         _id=id;
-        columns_labels.forEach(column->Columns.add(new Column(column, HLLsize)));
+        columns_labels.forEach(column->Columns.add(new Column(column)));
     }
 
     /**

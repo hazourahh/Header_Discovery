@@ -14,6 +14,7 @@ import de.uni_potsdam.hpi.table_header.io.ResultWriter;
 import org.aksw.palmetto.aggregation.ArithmeticMean;
 import org.aksw.palmetto.calculations.direct.CondProbConfirmationMeasure;
 import org.aksw.palmetto.subsets.OnePreceding;
+import org.aksw.palmetto.subsets.OneSucceeding;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +37,7 @@ public class Main {
         //2. load or build the webtables sketch if it is not created
         //calculator.initialize(true,25); //run it with true only once to generate sample and train from the full dataset
         Similarity_caculator.initialize(false, 5);
-        Coherent_Blinder blinder = new Coherent_Blinder(new OnePreceding(), new CondProbConfirmationMeasure(), new ArithmeticMean());
+        Coherent_Blinder blinder = new Coherent_Blinder(new OneSucceeding(), new CondProbConfirmationMeasure(), new ArithmeticMean());
 
 //----------------------------------- Testing ---------------------------------
 
@@ -142,7 +143,7 @@ public class Main {
                     ";" +
                     wtable.getNumDataRows() +
                     ";" +
-                    wtable.getNumCols() +
+                    original.size() +
                     ";" +
                     wtable.getNumericColumns().length +
                     ";" +
@@ -171,7 +172,7 @@ public class Main {
                 ";" +
                 wtable.getNumDataRows() +
                 ";" +
-                wtable.getNumCols() +
+                original.size() +
                 ";" +
                 wtable.getNumericColumns().length +
                 ";" +

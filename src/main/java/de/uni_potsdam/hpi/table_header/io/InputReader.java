@@ -55,7 +55,7 @@ public final class InputReader {
             values.get(0).forEach(e -> headers.add(e));
         }
 
-        HTable hyper_table = new HTable("-1", Filename, headers, Config.HLLsize);
+        HTable hyper_table = new HTable("-1", Filename, headers);
 
         int j = 0;
         if (has_header) j = j + 1;

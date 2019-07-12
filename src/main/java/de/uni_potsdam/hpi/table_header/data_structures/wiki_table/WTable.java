@@ -120,7 +120,7 @@ public class WTable implements Serializable {
      */
     public HTable Convert2Hyper() {
 
-        HTable hyper_table = new HTable(get_id(),getTableName(), getHeaders(), Config.HLLsize);
+        HTable hyper_table = new HTable(get_id(),getTableName(), getHeaders());
         for (int i = 0; i < hyper_table.getNumberCols(); i++) {
             Set column_value = getColumnValues(i);
             if (column_value.size() == 0) {
