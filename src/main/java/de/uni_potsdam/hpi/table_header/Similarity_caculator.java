@@ -39,10 +39,10 @@ class Similarity_caculator {
      * initialize the Hypertables either by parsing json file or deserialize from previous run
      */
     //TODO: add capability to update the tables if they are already stored
-    public static void initialize(boolean full_corpus, int sampling_percentage) {
+    public static void initialize(boolean sample, int sampling_percentage) {
 
         //if we have the full corpus we build testing dataset and then convert to Hyper representation the rest
-        if (full_corpus) {
+        if (sample) {
 
             //1- parse full web table corpus
             HashSet<String> Tables_Supplier = InputReader.parse_wiki_tables_file(Config.FULL_WIKI_FILENAME).collect(Collectors.toCollection(HashSet::new));
@@ -98,7 +98,8 @@ class Similarity_caculator {
 
             System.out.println("***done writing train dataset ***");
         }
-        try {
+
+       try {
 
             HLLWEBTABLES = (ArrayList<HTable>) Serializer.deserialize(Config.HYPERTABLE_FILENAME);
             System.out.println("***done deserialize htables***");
@@ -144,7 +145,8 @@ class Similarity_caculator {
             store_HTables();
             System.out.println("***done building and storing htables***");
 
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             System.err.println("Could not de-serialize the Hypertables");
             e.printStackTrace();
             System.exit(1);
@@ -153,6 +155,7 @@ class Similarity_caculator {
             e.printStackTrace();
             System.exit(1);
         }
+
   }
 
     private static void store_HTables() {
@@ -200,7 +203,7 @@ class Similarity_caculator {
                         input_col = inputtable.getColumns().get(j);
                         web_dist = web_col.cardinality();
                         input_dist = input_col.cardinality();
-                        HyperLogLogPlus union = new HyperLogLogPlus(14,25);
+                        HyperLogLogPlus union = new HyperLogLogPlus(Config.HLL_PLUS_P,Config.HLL_PLUS_SP);
 
 
                         try {
@@ -276,16 +279,16 @@ class Similarity_caculator {
      * @param webtable table from the web
      * @return Jaccard similarity between the tables based on Inclusion-exclusion principle   [context similarity]
      */
-    private static float findTableOverlap(HTable input, HTable webtable) {
+ private static float findTableOverlap(HTable input, HTable webtable) {
         //TODO: try different metrics
         long LHS_dist, RHS_dist, union_dist;
 
 
         float overlap = 0;
         HyperLogLogPlus LHS_union, RHS_union, union;
-        LHS_union = new HyperLogLogPlus(14,25);
-        RHS_union = new HyperLogLogPlus(14,25);
-        union = new HyperLogLogPlus(14,25);
+        LHS_union = new HyperLogLogPlus(Config.HLL_PLUS_P,Config.HLL_PLUS_SP);
+        RHS_union = new HyperLogLogPlus(Config.HLL_PLUS_P,Config.HLL_PLUS_SP);
+        union = new HyperLogLogPlus(Config.HLL_PLUS_P,Config.HLL_PLUS_SP);
 
 
         try {

@@ -20,15 +20,18 @@ public final class Config {
     public static final String FULL_WIKI_FILENAME = "tables.json";
     // public static final String FULL_WIKI_FILENAME = "table-small.json";
 
-    public static final String TRAINING_WIKI_FILENAME = "tables_train.json";
+    public static  String TRAINING_WIKI_FILENAME = "tables_train.json";
     public static final String TESTING_WIKI_FILENAME = "table_test.json";
     public static final String FILTERED_FILENAME="tables_filtered.json";
     public static final String Input_acsdb_file = "acsdb.txt";
+
 
     //results
     public enum Output {
         RESULT,RESULT_PHASE1, SCHEMATA, NUMERC_NON, STATISTIC, WIDTH, LENGTH, NUMERIC, NON_NUMERIC, TABLES_MISSING_HEADERS, HEADERS, ACSDB, TABLEASCSV, TEST_SET, TRAIN_SET, FILTERED_SET
     }
+
+    public enum testdata {WEBTABLE,OPENDATA}
 
     public static final String ACSDB_FILENAME = Config.measurementsFolderPath + "acsdb";
     static final String Results_FILENAME, Results_phase1_FILENAME;
@@ -63,7 +66,7 @@ public final class Config {
     public static int HLL_PLUS_P=14;
     public static int HLL_PLUS_SP=25;
     //experiments config
-    public static  int k = 10; //to choose top K candidate for each header
+    public static  int k = 5; //to choose top K candidate for each header
     public static int m = 10; //to choose top m candidate for each schema
     public static double table_similarity = 0.4;  // jaccard similarity between tables is larger than this number if table_similarity_filtering is enabled
     public static double column_similarity = 0; // the weighted containemnt is larger than this if table_similarity_weighting and table_similarity_filtering are enabled
@@ -72,5 +75,5 @@ public final class Config {
     public static boolean table_similarity_weighting=true;    // weight the column similarity by table similarity if table_similarity_filtering is enabled
     public static boolean table_similarity_filtering=true;   //filter on table similarity
     public static double table_similarity_weight=1; // how much weight for the tables similarity in the weighted score
-
+    public static testdata test_type=testdata.OPENDATA;
 }
