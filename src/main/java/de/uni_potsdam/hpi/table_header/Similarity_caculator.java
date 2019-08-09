@@ -182,6 +182,9 @@ class Similarity_caculator {
         //topk for each column
         Topk_candidates candidates = new Topk_candidates(k, inputtable.getNumberCols());
 
+        HyperLogLogPlus inputtable_HLL = merge(inputtable);
+
+
         //TODO: improve the search
         //update the candidate set to end up with top k result
         HLLWEBTABLES.forEach(webtable -> {
@@ -193,33 +196,23 @@ class Similarity_caculator {
 
             //table similarity (context similarity)
             if(Config.table_similarity_filtering)
-                 table_overlap = findTableOverlap(inputtable, webtable);
+                 table_overlap = findTableOverlap(inputtable_HLL, webtable);
 
             if ((Config.table_similarity_filtering && table_overlap > Config.table_similarity) || (!Config.table_similarity_filtering))
             {
                 for (int i = 0; i < webtable.getColumns().size(); i++) {
                     for (int j = 0; j < inputtable.getColumns().size(); j++) {
+
                         web_col = webtable.getColumns().get(i);
                         input_col = inputtable.getColumns().get(j);
                         web_dist = web_col.cardinality();
                         input_dist = input_col.cardinality();
-                        HyperLogLogPlus union = new HyperLogLogPlus(Config.HLL_PLUS_P,Config.HLL_PLUS_SP);
-
-
-                        try {
-                            union.addAll(web_col.getValues());
-                            union.addAll(input_col.getValues());
-                            union_dist = union.cardinality();
+                        HyperLogLogPlus union = merge_HLL(web_col.getValues(),input_col.getValues());
+                        union_dist = union.cardinality();
 
                             if (input_dist  > 0 && web_dist > 0)
                                 overlap = (web_dist + input_dist - union_dist) / (float) input_dist;
 
-
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            System.exit(1);
-                        }
                         //calculate the overlap and add results
                         if(Config.table_similarity_filtering && Config.table_similarity_weighting)
                         weighted_overlap = overlap * (Config.table_similarity_weight* table_overlap);
@@ -238,24 +231,8 @@ class Similarity_caculator {
                                     !web_col.getLabel().matches("[0-9]+")
 
                             ) {
-                            /*StringBuilder result = new StringBuilder();
-                            result.append(webtable.getName().replace(",", "-"));
-                            result.append(",");
-                            String lhslabel = web_col.getLabel().replace(",", "-");
-                            result.append(lhslabel);
-                            result.append(",");
-                            result.append(inputtable.getName().replace(",", "-"));
-                            result.append(",");
-                            String rhslabel = input_col.getLabel().replace(",", "-");
-                            result.append(rhslabel);
-                            result.append(",");
-                            result.append(overlap);
-                            result.append(",");
-                            result.append(weighted_overlap);
-                            result.append("\r\n");*/
+
                                 candidates.add_candidate(j, new Header_Candidate(web_col.getLabel(), weighted_overlap));
-                                // System.out.println(".");
-                                //ResultWriter.add2Result(result.toString(), Config.Output.RESULT,"");
                             }
 
                         } catch (Exception e) {
@@ -275,50 +252,29 @@ class Similarity_caculator {
     }
 
     /**
-     * @param input    table with missing header
+     * @param input_HLL    table with missing header
      * @param webtable table from the web
      * @return Jaccard similarity between the tables based on Inclusion-exclusion principle   [context similarity]
      */
- private static float findTableOverlap(HTable input, HTable webtable) {
-        //TODO: try different metrics
-        long LHS_dist, RHS_dist, union_dist;
+ private static float findTableOverlap(HyperLogLogPlus input_HLL, HTable webtable) {
 
 
         float overlap = 0;
-        HyperLogLogPlus LHS_union, RHS_union, union;
-        LHS_union = new HyperLogLogPlus(Config.HLL_PLUS_P,Config.HLL_PLUS_SP);
-        RHS_union = new HyperLogLogPlus(Config.HLL_PLUS_P,Config.HLL_PLUS_SP);
-        union = new HyperLogLogPlus(Config.HLL_PLUS_P,Config.HLL_PLUS_SP);
+
+        HyperLogLogPlus web_HLL = merge(webtable);
+        long input_dist=input_HLL.cardinality();
+        long web_dist=web_HLL.cardinality();
+
+        //early pruning
+        if (input_dist  <= 0 || web_dist <= 0) return -1;
+        if(Math.min(input_dist,web_dist)/ (float) Math.max(input_dist,web_dist)<Config.table_similarity) return -1;
 
 
-        try {
+        HyperLogLogPlus union=merge_HLL(input_HLL,web_HLL);
+        long union_dist=union.cardinality();
+        //intersection cardinality according to Inclusion-exclusion principle
 
-            for (Column col : webtable.getColumns()) {
-                LHS_union.addAll(col.getValues());
-                union.addAll(col.getValues());
-            }
-            //cardinality of bag of words of a webtable
-            LHS_dist = LHS_union.cardinality();
-            for (Column col : input.getColumns()) {
-                RHS_union.addAll(col.getValues());
-                union.addAll(col.getValues());
-            }
-            //cardinality of bag of words of a inputtable
-            RHS_dist = RHS_union.cardinality();
-            //cardinality of bag of words of the union
-            union_dist = union.cardinality();
-
-
-            //intersection cardinality according to Inclusion-exclusion principle
-            if (LHS_dist > 0 && RHS_dist > 0)
-                overlap = (LHS_dist + RHS_dist - union_dist) / (float) union_dist ;
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-
+                overlap = (input_dist + web_dist - union_dist) / (float) union_dist ;
 
         return overlap;
 
@@ -357,4 +313,34 @@ class Similarity_caculator {
         // all unique
         return headers.stream().allMatch(new HashSet<>()::add);
     }
+
+
+private static HyperLogLogPlus merge(HTable table)
+{
+    HyperLogLogPlus  web_union = new HyperLogLogPlus(Config.HLL_PLUS_P,Config.HLL_PLUS_SP);
+    try {
+        for (Column col : table.getColumns()) {
+            web_union.addAll(col.getValues());
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.exit(1);
+    }
+    return web_union;
+}
+
+    private static HyperLogLogPlus merge_HLL(HyperLogLogPlus sk1, HyperLogLogPlus sk2)
+    {
+        HyperLogLogPlus  union = new HyperLogLogPlus(Config.HLL_PLUS_P,Config.HLL_PLUS_SP);
+        try {
+            union.addAll(sk1);
+            union.addAll(sk2);
+
+        }catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return union;
+    }
+
 }

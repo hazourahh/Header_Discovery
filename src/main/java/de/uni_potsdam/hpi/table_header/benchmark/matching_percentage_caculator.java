@@ -45,7 +45,7 @@ public class matching_percentage_caculator {
 
             for (String line:  lines.collect(Collectors.toList()) )
                    { List<String> columns=Arrays.asList(pattern_line.split(line));
-                   float counter=0;
+                   float counter=0, noresult=0;
                    if(!StringUtils.isBlank(columns.get(7)) && !columns.get(7).matches("[-]+") )
                    {
                        List<String> result=Arrays.asList(pattern_schema.split(columns.get(7)));
@@ -54,6 +54,8 @@ public class matching_percentage_caculator {
                        if(original.size()==result.size()) counter2++;
                        for (int i=0;i<result.size();i++) {
                            try {
+                               if((result.get(i)).equals("NORESULT"))
+                               {noresult++;}
                                if (result.get(i).trim().equals((original.get(i).trim().toLowerCase()))) //TODO: change here for counting
                                    // if(distance.apply(result.get(i).trim(),original.get(i).trim().toLowerCase())>0.7)
                                    counter++;
@@ -63,7 +65,7 @@ public class matching_percentage_caculator {
                            }
 
                        }
-                       counter=counter/result.size();
+                       counter=counter/(result.size()-noresult);
 
 
                    }

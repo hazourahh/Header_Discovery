@@ -18,6 +18,7 @@ import org.aksw.palmetto.subsets.OneSucceeding;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -51,55 +52,60 @@ public class Main {
                                     ",table_similarity_weighting:" + Config.table_similarity_weighting+
                                     ",table_similarity_filtering:" + Config.table_similarity_filtering+
                                      ",table_similarity_weight:" + Config.table_similarity_weight+
+                                     ",testdata:" + Config.test_type+
                                      "]\n", Config.Output.RESULT, "");
 
 if(Config.test_type==Config.testdata.OPENDATA)  // input is csv files
 {
     File folder = new File(Config.inputFolderPath);
     File[] listOfFiles = folder.listFiles();
-    for(int i=0;i<listOfFiles.length;i++) {
-        String table_name = listOfFiles[i].getName();
+    Arrays.stream(listOfFiles).forEach( file-> {
+        //  for(int i=0;i<listOfFiles.length;i++) {
+        String table_name = file.getPath();
+       //String table_name="data\\Oahu_TEFAP_Agencies.csv";
         //read the file with missing header into hyper representation
-        HTable current = InputReader.read_WT_File(table_name, ",", true);
-
-        //2- find topk for each header-------------------------------
-        Topk_candidates candidates = Similarity_caculator.calculate_similarity(current, Config.k);
-        //write_to_disk_phase1(w_table, current.getHeaders(), candidates);
-
-
-        //3-coherance blind ---------------------------------------
-        if (candidates.getScored_candidates().length == 0) {
-            write_to_disk_od(table_name, current.getHeaders(), Collections.<String>emptyList(), -1, 1);
-        } else {
-
-            try {
+        HTable current = InputReader.read_WT_File(table_name, ",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", true);
+        if (current == null)
+        { write_to_disk_od(table_name, Collections.<String>emptyList(), Collections.<String>emptyList(), -4, 1);}
+        else{
+            //2- find topk for each header-------------------------------
+            Topk_candidates candidates = Similarity_caculator.calculate_similarity(current, Config.k);
+            //write_to_disk_phase1(w_table, current.getHeaders(), candidates);
 
 
-                Topk_candidates schema_candidates = blinder.coherant_blind_candidate(candidates, Config.m);
+            //3-coherance blind ---------------------------------------
+            if (candidates.getScored_candidates().length == 0) {
+                write_to_disk_od(table_name, current.getHeaders(), Collections.<String>emptyList(), -1, 1);
+            } else {
 
-                MinMaxPriorityQueue<Candidate> result = schema_candidates.getScored_candidates()[0];
-                AtomicInteger counter = new AtomicInteger(1);
-                result.forEach(e ->
-                {
-                    Schema_Candidate cand = (Schema_Candidate) e;
-                    write_to_disk_od(table_name, current.getHeaders(), cand.getSchema(), cand.getSimilarity_score(), counter.getAndIncrement());
+                try {
 
-                    // System.out.println(current.get_id().replace(",", " ")+";"+String.join("-",cand.getSchema())+";"+String.join("-",current.getHeaders())+";"+cand.getSimilarity_score()+"\n");
-                });
-                if (result.isEmpty()) {
-                    write_to_disk_od(table_name, current.getHeaders(), Collections.<String>emptyList(), -2, 1);
+                    Topk_candidates schema_candidates = blinder.coherant_blind_candidate(candidates, Config.m);
+
+                    MinMaxPriorityQueue<Candidate> result = schema_candidates.getScored_candidates()[0];
+                    AtomicInteger counter = new AtomicInteger(1);
+                    result.forEach(e ->
+                    {
+                        Schema_Candidate cand = (Schema_Candidate) e;
+                        write_to_disk_od(table_name, current.getHeaders(), cand.getSchema(), cand.getSimilarity_score(), counter.getAndIncrement());
+
+                        // System.out.println(current.get_id().replace(",", " ")+";"+String.join("-",cand.getSchema())+";"+String.join("-",current.getHeaders())+";"+cand.getSimilarity_score()+"\n");
+                    });
+                    if (result.isEmpty()) {
+                        write_to_disk_od(table_name, current.getHeaders(), Collections.<String>emptyList(), -2, 1);
+                    }
+                } catch (Exception e) {
+
+                    System.err.println("something went wrong with table" + table_name);
+                    write_to_disk_od(table_name, current.getHeaders(), Collections.<String>emptyList(), -3, 1);
+                    // e.printStackTrace();
                 }
-            } catch (Exception e) {
-
-                System.err.println("something went wrong with table" + table_name);
-                write_to_disk_od(table_name, current.getHeaders(), Collections.<String>emptyList(), -3, 1);
-                // e.printStackTrace();
             }
         }
+            System.out.println("Table: " + table_name + "--> done");
 
-        System.out.println("Table: " + current.getName() + "--> done");
-
-    }
+    });
+    //}
 
 }
 else  //input is a JSON file with table per line
@@ -126,7 +132,7 @@ else  //input is a JSON file with table per line
                 startTime = System.currentTimeMillis();
 
                 Topk_candidates candidates = Similarity_caculator.calculate_similarity(current, Config.k);
-                write_to_disk_phase1(w_table, current.getHeaders(), candidates);
+                //write_to_disk_phase1(w_table, current.getHeaders(), candidates);
                 stopTime = System.currentTimeMillis();
                 topk_time = (stopTime - startTime) / 1000;
 

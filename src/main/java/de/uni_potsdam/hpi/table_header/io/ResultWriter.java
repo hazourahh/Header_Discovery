@@ -74,6 +74,9 @@ public class ResultWriter {
                 case FILTERED_SET:
                     out_file_name = Config.FILTERED_FILENAME.replace(".csv", "_" + dataset + ".csv");
                     break;
+                case SMALL_TEST_SET:
+                    out_file_name = Config.SMALL_TEST_FILENAME.replace(".csv", "_" + dataset + ".csv");
+                    break;
             }
             File file = new File(out_file_name);
             // if file doesnt exists, then create it

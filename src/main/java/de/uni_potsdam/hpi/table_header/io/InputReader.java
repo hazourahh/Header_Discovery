@@ -43,8 +43,9 @@ public final class InputReader {
 
 
     //-------------------------------Pars input ----------------------------------
-    public static HTable read_WT_File(String Filename, String seperator, boolean has_header) {
-        List<List<String>> values = read_CSV_File(Filename, seperator);
+    public static HTable read_WT_File(String Filename, String seperator, boolean has_header)  {
+        HTable hyper_table;
+        try {   List<List<String>> values = read_CSV_File(Filename, seperator);
         int numcols = values.get(0).size();
 
         List<String> headers = new ArrayList<>();
@@ -54,18 +55,20 @@ public final class InputReader {
         } else {
             values.get(0).forEach(e -> headers.add(e));
         }
+        if(headers.size()!=numcols) return null;
+        hyper_table = new HTable("-1", Filename.replace(Config.inputFolderPath,""), headers);
 
-        HTable hyper_table = new HTable("-1", Filename, headers);
-
-        int j = 0;
-        if (has_header) j = j + 1;
-        do {
-            for (int i = 0; i < numcols; i++) {
-                hyper_table.add2Column(i, values.get(j).get(i));
-            }
-            j++;
-        } while (j < values.size());
-
+    int j = 0;
+    if (has_header) j = j + 1;
+    do {
+        for (int i = 0; i < numcols; i++) {
+            hyper_table.add2Column(i, values.get(j).get(i));
+        }
+        j++;
+    } while (j < values.size());
+    }catch(Exception ex)
+    {   hyper_table=null;
+        System.out.println("error parsing the table from csv");}
         return hyper_table;
     }
 
