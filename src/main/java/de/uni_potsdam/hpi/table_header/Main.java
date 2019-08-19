@@ -12,9 +12,11 @@ import de.uni_potsdam.hpi.table_header.io.Config;
 import de.uni_potsdam.hpi.table_header.io.InputReader;
 import de.uni_potsdam.hpi.table_header.io.ResultWriter;
 import org.aksw.palmetto.aggregation.ArithmeticMean;
-import org.aksw.palmetto.calculations.direct.CondProbConfirmationMeasure;
+import org.aksw.palmetto.calculations.direct.*;
+import org.aksw.palmetto.subsets.OneOne;
 import org.aksw.palmetto.subsets.OnePreceding;
 import org.aksw.palmetto.subsets.OneSucceeding;
+import org.aksw.palmetto.subsets.Segmentator;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,6 +33,52 @@ import java.util.stream.Stream;
 public class Main {
 
     public static void main(String[] args) {
+        Segmentator segmentation=new OneSucceeding();
+        DirectConfirmationMeasure confirmation=new CondProbConfirmationMeasure();
+        try {
+
+            for ( int i = 0; i < args.length; i++ ) {
+                if ( args[i].equals("--train") ) {
+                    i++;
+                    Config.TRAINING_WIKI_FILENAME = args[i];
+                } else if ( args[i].equals("--test") ) {
+                    i++;
+                    Config.TESTING_WIKI_FILENAME= args[i];
+                }
+                else if ( args[i].equals("--phase1") ) {
+                    i++;
+                    Config.only_phase_1 =Boolean.parseBoolean(args[i]);
+                }
+                else if ( args[i].equals("-k") ) {
+                    i++;
+                   Config.k = Integer.parseInt(args[i]);
+                }
+                else if ( args[i].equals("-t") ) {
+                    i++;
+                    Config.table_similarity= Double.parseDouble(args[i]);
+                }
+                else if ( args[i].equals("-m") ) {
+                    i++;
+                    Config.m = Integer.parseInt(args[i]);
+                }
+                else if ( args[i].equals("-S") ) {
+                    i++;
+                    segmentation=getSegmentator(args[i]);
+                }
+                else if ( args[i].equals("-C") ) {
+                    i++;
+                    confirmation=getConfirmation(args[i]);
+                }
+                else {
+                    // nothing to do, the unrecognized argument will be skipped
+                }
+            }
+
+        }
+        catch (NumberFormatException nfe) {
+            System.out.println("error parsing args");
+            System.exit(1);
+        }
 
         //----------important----------------
         //adjust all parameters in Config.java file before runing the experiments
@@ -42,7 +90,7 @@ public class Main {
         if(Config.test_type==Config.testdata.OPENDATA)
         {Config.TRAINING_WIKI_FILENAME=Config.FULL_WIKI_FILENAME;}
         Similarity_caculator.initialize(false, 5);
-       Coherent_Blinder blinder = new Coherent_Blinder(new OneSucceeding(), new CondProbConfirmationMeasure(), new ArithmeticMean());
+       Coherent_Blinder blinder = new Coherent_Blinder(segmentation, confirmation, new ArithmeticMean());
 
 //----------------------------------- Testing ---------------------------------
         ResultWriter.add2Result("[k:"+Config.k+
@@ -132,46 +180,50 @@ else  //input is a JSON file with table per line
                 startTime = System.currentTimeMillis();
 
                 Topk_candidates candidates = Similarity_caculator.calculate_similarity(current, Config.k);
-                //write_to_disk_phase1(w_table, current.getHeaders(), candidates);
+                if(Config.only_phase_1)
+                  write_to_disk_phase1(w_table, current.getHeaders(), candidates);
+
                 stopTime = System.currentTimeMillis();
                 topk_time = (stopTime - startTime) / 1000;
 
                 //3-coherance blind ---------------------------------------
-                if (candidates.getScored_candidates().length == 0) {
-                    resultss = false;
-                    write_to_disk(w_table, current.getHeaders(), Collections.<String>emptyList(), -1, 1);
-                } else {
+                if(!Config.only_phase_1) {
+                    if (candidates.getScored_candidates().length == 0) {
+                        resultss = false;
+                        write_to_disk(w_table, current.getHeaders(), Collections.<String>emptyList(), -1, 1);
+                    } else {
 
-                    try {
+                        try {
 
-                        startTime = System.currentTimeMillis();
+                            startTime = System.currentTimeMillis();
 
-                        Topk_candidates schema_candidates = blinder.coherant_blind_candidate(candidates, Config.m);
+                            Topk_candidates schema_candidates = blinder.coherant_blind_candidate(candidates, Config.m);
 
-                        stopTime = System.currentTimeMillis();
-                        coherance_time = (stopTime - startTime) / 1000;
+                            stopTime = System.currentTimeMillis();
+                            coherance_time = (stopTime - startTime) / 1000;
 
 
-                        MinMaxPriorityQueue<Candidate> result = schema_candidates.getScored_candidates()[0];
-                        AtomicInteger counter = new AtomicInteger(1);
-                        result.forEach(e ->
-                        {
-                            Schema_Candidate cand = (Schema_Candidate) e;
-                            write_to_disk(w_table, current.getHeaders(), cand.getSchema(), cand.getSimilarity_score(), counter.getAndIncrement());
+                            MinMaxPriorityQueue<Candidate> result = schema_candidates.getScored_candidates()[0];
+                            AtomicInteger counter = new AtomicInteger(1);
+                            result.forEach(e ->
+                            {
+                                Schema_Candidate cand = (Schema_Candidate) e;
+                                write_to_disk(w_table, current.getHeaders(), cand.getSchema(), cand.getSimilarity_score(), counter.getAndIncrement());
 
-                            // System.out.println(current.get_id().replace(",", " ")+";"+String.join("-",cand.getSchema())+";"+String.join("-",current.getHeaders())+";"+cand.getSimilarity_score()+"\n");
-                        });
-                        if (result.isEmpty()) {
-                            write_to_disk(w_table, current.getHeaders(), Collections.<String>emptyList(), -2, 1);
+                                // System.out.println(current.get_id().replace(",", " ")+";"+String.join("-",cand.getSchema())+";"+String.join("-",current.getHeaders())+";"+cand.getSimilarity_score()+"\n");
+                            });
+                            if (result.isEmpty()) {
+                                write_to_disk(w_table, current.getHeaders(), Collections.<String>emptyList(), -2, 1);
+                            }
+                        } catch (Exception e) {
+
+                            System.err.println("something went wrong with table" + w_table.get_id());
+                            write_to_disk(w_table, current.getHeaders(), Collections.<String>emptyList(), -3, 1);
+                            // e.printStackTrace();
                         }
-                    } catch (Exception e) {
-
-                        System.err.println("something went wrong with table" + w_table.get_id());
-                        write_to_disk(w_table, current.getHeaders(), Collections.<String>emptyList(), -3, 1);
-                        // e.printStackTrace();
                     }
                 }
-
+                write_to_disk_runtime(w_table, current.getHeaders(),topk_time,coherance_time, topk_time+coherance_time);
                 System.out.println("Table: " + current.get_id() + "--> done in " + topk_time + "/" + coherance_time + "with results? " + resultss);
 
             }
@@ -276,4 +328,57 @@ else  //input is a JSON file with table per line
 
     }
 
+
+    static synchronized void write_to_disk_runtime(WTable wtable,List<String> original, float search, float coherent, float all) {
+        ResultWriter.add2Result(wtable.get_id().replace(";", " ") +
+                ";" +
+                wtable.getTableName().replace(";", " ").replace("\n", " ").replace("\r", "") +
+                ";" +
+                wtable.getPgTitle().replace(";", " ").replace("\n", " ").replace("\r", "") +
+                ";" +
+                wtable.getNumDataRows() +
+                ";" +
+                original.size() +
+                ";" +
+                wtable.getNumericColumns().length +
+                ";" +
+               search+
+                ";" +
+                coherent +
+                ";" +
+                all + "\n", Config.Output.RUNTIME, "");
+    }
+
+    static  DirectConfirmationMeasure getConfirmation(String s)
+    {
+        switch (s) {
+            case "C":
+                return new CondProbConfirmationMeasure();
+            case "F":
+                return new FitelsonConfirmationMeasure();
+            case "D":
+                return new DifferenceBasedConfirmationMeasure();
+            case "LR":
+                return new LogRatioConfirmationMeasure();
+            case "NLR":
+                return new NormalizedLogRatioConfirmationMeasure();
+
+            default:
+                return new CondProbConfirmationMeasure();
+        }
+    }
+
+    static  Segmentator getSegmentator(String s)
+    {
+        switch (s) {
+            case "ONE":
+                return new OneOne();
+            case "PRE":
+                return new OnePreceding();
+            case "SUC":
+                return new OneSucceeding();
+            default:
+                return new OneSucceeding();
+        }
+    }
 }

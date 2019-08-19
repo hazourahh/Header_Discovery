@@ -27,10 +27,10 @@ public class phase1_restults {
         Pattern pattern_schema = Pattern.compile("-");
         BufferedWriter bw = null;
         FileWriter fw = null;
-        String out_file_name = "result_phase1_top10_0.2_match.csv";
+        String out_file_name = "result_phase1_top10_nofilter_match.csv";
         File file = new File(out_file_name);
 
-        try (Stream<String> lines = Files.lines(Paths.get("result_phase1_top10_0.2.csv"))) {
+        try (Stream<String> lines = Files.lines(Paths.get("result_phase1_top10_nofilter.csv"))) {
             // if file doesnt exists, then create it
             if (!file.exists()) {
                 file.createNewFile();

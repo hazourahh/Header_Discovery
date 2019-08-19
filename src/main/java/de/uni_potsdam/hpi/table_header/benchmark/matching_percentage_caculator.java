@@ -31,10 +31,10 @@ public class matching_percentage_caculator {
         Pattern pattern_schema = Pattern.compile("-");
         BufferedWriter bw = null;
         FileWriter fw = null;
-        String out_file_name = "result_counting_exact_exp5.csv";
+        String out_file_name = "result_counting_exact_result_t0.3.csv";
         File file = new File(out_file_name);
 
-        try (Stream<String> lines = Files.lines(Paths.get("result_exp5.csv"))) {
+        try (Stream<String> lines = Files.lines(Paths.get("result_t0.3.csv"))) {
             // if file doesnt exists, then create it
             if (!file.exists()) {
                 file.createNewFile();
@@ -56,6 +56,7 @@ public class matching_percentage_caculator {
                            try {
                                if((result.get(i)).equals("NORESULT"))
                                {noresult++;}
+
                                if (result.get(i).trim().equals((original.get(i).trim().toLowerCase()))) //TODO: change here for counting
                                    // if(distance.apply(result.get(i).trim(),original.get(i).trim().toLowerCase())>0.7)
                                    counter++;

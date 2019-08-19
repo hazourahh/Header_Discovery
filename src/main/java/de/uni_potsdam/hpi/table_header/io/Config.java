@@ -21,16 +21,19 @@ public final class Config {
     // public static final String FULL_WIKI_FILENAME = "table-small.json";
 
     public static  String TRAINING_WIKI_FILENAME = "tables_train.json";
-    public static final String TESTING_WIKI_FILENAME = "table_test.json";
-    public static final String FILTERED_FILENAME="tables_filtered.json";
     public static final String SMALL_TEST_FILENAME="tables_test_small.json";
+    public static  String TESTING_WIKI_FILENAME = "table_test.json";
+   // public static final String TESTING_WIKI_FILENAME = SMALL_TEST_FILENAME;
+    public static final String FILTERED_FILENAME="tables_filtered.json";
+
     public static final String Input_acsdb_file = "acsdb.txt";
 
 
     //results
     public enum Output {
-        SMALL_TEST_SET, RESULT,RESULT_PHASE1, SCHEMATA, NUMERC_NON, STATISTIC, WIDTH, LENGTH, NUMERIC, NON_NUMERIC, TABLES_MISSING_HEADERS, HEADERS, ACSDB, TABLEASCSV, TEST_SET, TRAIN_SET, FILTERED_SET
+       RUNTIME, SMALL_TEST_SET, RESULT,RESULT_PHASE1, SCHEMATA, NUMERC_NON, STATISTIC, WIDTH, LENGTH, NUMERIC, NON_NUMERIC, TABLES_MISSING_HEADERS, HEADERS, ACSDB, TABLEASCSV, TEST_SET, TRAIN_SET, FILTERED_SET
     }
+
 
     public enum testdata {WEBTABLE,OPENDATA}
 
@@ -60,14 +63,14 @@ public final class Config {
     static final String LENGTH_FILENAME = Config.measurementsFolderPath + "length_stat.csv";
     static final String NUMERC_FILENAME = Config.measurementsFolderPath + "numeric_stat.csv";
     static final String NON_NUMERC_FILENAME = Config.measurementsFolderPath + "non_numeric_stat.csv";
-
+    static final String RUNTIME_FILENAME= Config.measurementsFolderPath + "runtime.csv";
 
     //HLL length
     //public static int HLLsize = 8;
     public static int HLL_PLUS_P=14;
     public static int HLL_PLUS_SP=25;
     //experiments config
-    public static  int k = 10; //to choose top K candidate for each header
+    public static  int k = 5; //to choose top K candidate for each header
     public static int m = 10; //to choose top m candidate for each schema
     public static double table_similarity = 0.4;  // jaccard similarity between tables is larger than this number if table_similarity_filtering is enabled
     public static double column_similarity = 0; // the weighted containemnt is larger than this if table_similarity_weighting and table_similarity_filtering are enabled
@@ -77,4 +80,5 @@ public final class Config {
     public static boolean table_similarity_filtering=true;   //filter on table similarity
     public static double table_similarity_weight=1; // how much weight for the tables similarity in the weighted score
     public static testdata test_type=testdata.WEBTABLE;
+    public static boolean only_phase_1=false;
 }

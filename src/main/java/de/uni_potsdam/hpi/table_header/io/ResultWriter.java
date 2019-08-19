@@ -77,6 +77,9 @@ public class ResultWriter {
                 case SMALL_TEST_SET:
                     out_file_name = Config.SMALL_TEST_FILENAME.replace(".csv", "_" + dataset + ".csv");
                     break;
+                case RUNTIME:
+                    out_file_name = Config.RUNTIME_FILENAME;
+                    break;
             }
             File file = new File(out_file_name);
             // if file doesnt exists, then create it
