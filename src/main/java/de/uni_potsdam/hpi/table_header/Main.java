@@ -89,8 +89,8 @@ public class Main {
         //calculator.initialize(true,25); //run it with true only once to generate sample and train from the full dataset
         if(Config.test_type==Config.testdata.OPENDATA)
         {Config.TRAINING_WIKI_FILENAME=Config.FULL_WIKI_FILENAME;}
-        Similarity_caculator.initialize(false, 5);
-       Coherent_Blinder blinder = new Coherent_Blinder(segmentation, confirmation, new ArithmeticMean());
+        Similarity_caculator.initialize(false, 30);
+      Coherent_Blinder blinder = new Coherent_Blinder(segmentation, confirmation, new ArithmeticMean());
 
 //----------------------------------- Testing ---------------------------------
         ResultWriter.add2Result("[k:"+Config.k+
@@ -229,10 +229,6 @@ else  //input is a JSON file with table per line
             }
     );
 }
-        //stopTime = System.currentTimeMillis();
-        // elapsedTime = stopTime - startTime;
-        // startTime = System.currentTimeMillis();
-
     }
 
     static synchronized void write_to_disk_phase1(WTable wtable,List<String> original,Topk_candidates candidates)
@@ -381,4 +377,5 @@ else  //input is a JSON file with table per line
                 return new OneSucceeding();
         }
     }
+
 }
