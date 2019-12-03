@@ -79,8 +79,10 @@ class Coherent_Blinder {
         } catch (FileNotFoundException e) {
 
             //parse acsdb and build an index
+            long start=System.currentTimeMillis();
             InputReader.build_ACSDB_index(Config.Input_acsdb_file);
-            System.out.println("***done building acsdb index***");
+            long end=System.currentTimeMillis();
+            System.out.println(((end- start) / 1000)+ "***done building acsdb index***");
 
         } catch (IOException e) {
             System.err.println("Could not open acsdb index");

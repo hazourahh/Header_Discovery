@@ -120,6 +120,7 @@ class Similarity_caculator {
             // try {
             //  IndexWriter writer = InputReader.open_ACSDB_index(IndexWriterConfig.OpenMode.APPEND);
 
+           long start=System.currentTimeMillis();
             train_tables.forEach(json_table -> {
                 WTable wt = WTable.fromString(json_table);
                 //filter out low quality tables
@@ -138,8 +139,8 @@ class Similarity_caculator {
                                 System.exit(1);
                             }*/
             });
-
-            System.out.println("***done converting train dataset to HLL representation***");
+            long end=System.currentTimeMillis();
+            System.out.println(((end- start) / 1000)+"***done converting train dataset to HLL representation***");
 
             // store the HLLwebtables
             store_HTables();

@@ -27,10 +27,10 @@ public class phase1_restults {
         Pattern pattern_schema = Pattern.compile("-");
         BufferedWriter bw = null;
         FileWriter fw = null;
-        String out_file_name = "result_phase1_top10_nofilter_match.csv";
+        String out_file_name = "result_phase1_lazo_8_match.csv";
         File file = new File(out_file_name);
 
-        try (Stream<String> lines = Files.lines(Paths.get("result_phase1_top10_nofilter.csv"))) {
+        try (Stream<String> lines = Files.lines(Paths.get("result_phase1_lazo_8.csv"))) {
             // if file doesnt exists, then create it
             if (!file.exists()) {
                 file.createNewFile();
@@ -41,32 +41,38 @@ public class phase1_restults {
 
             for (String line : lines.collect(Collectors.toList())) {
                 List<String> columns = Arrays.asList(pattern_line.split(line));
+                try {
+                if(columns.size()!=8) throw new Exception();
                 String match = "DIFF";
                 int index = 0;
-                if (!StringUtils.isBlank(columns.get(7)) && !columns.get(7).matches("[-]+")) {
-                    List<String> result = Arrays.asList(pattern_schema.split(columns.get(7)));
-                    String original = columns.get(6);
-                    // JaroWinklerDistance distance = new JaroWinklerDistance();
-                    if (result.size() == 1 && result.get(0).equals("NORESULT"))
-                        match = "NORESULT";
-                    else {
-                        for (int i = 0; i < result.size(); i++) {
-                            try {
-                                if (result.get(i).trim().equals(original.trim().toLowerCase())) //TODO: change here for counting
-                                // if(distance.apply(result.get(i).trim(),original.get(i).trim().toLowerCase())>0.7)
-                                {
-                                    match = "MATCH";
-                                    index = i + 1;
-                                }
-                            } catch (Exception e) {
-                                System.out.println(line);
-                            }
 
+                    if (!StringUtils.isBlank(columns.get(7)) && !columns.get(7).matches("[-]+")) {
+                        List<String> result = Arrays.asList(pattern_schema.split(columns.get(7)));
+                        String original = columns.get(6);
+                        // JaroWinklerDistance distance = new JaroWinklerDistance();
+                        if (result.size() == 1 && result.get(0).equals("NORESULT"))
+                            match = "NORESULT";
+                        else {
+                            for (int i = 0; i < result.size(); i++) {
+                                try {
+                                    if (result.get(i).trim().equals(original.trim().toLowerCase())) //TODO: change here for counting
+                                    // if(distance.apply(result.get(i).trim(),original.get(i).trim().toLowerCase())>0.7)
+                                    {
+                                        match = "MATCH";
+                                        index = i + 1;
+                                    }
+                                } catch (Exception e) {
+                                    System.out.println(line);
+                                }
+
+                            }
                         }
                     }
-                }
 
-                bw.write(line + ";" + match + ";" + index + "\n");
+                    bw.write(line + ";" + match + ";" + index + "\n");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             System.out.println(counter2);
 

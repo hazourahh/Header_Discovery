@@ -31,10 +31,10 @@ public class matching_percentage_caculator {
         Pattern pattern_schema = Pattern.compile("-");
         BufferedWriter bw = null;
         FileWriter fw = null;
-        String out_file_name = "result_counting_exact_result_t0.3.csv";
+        String out_file_name = "result_0.1_match.csv";
         File file = new File(out_file_name);
 
-        try (Stream<String> lines = Files.lines(Paths.get("result_t0.3.csv"))) {
+        try (Stream<String> lines = Files.lines(Paths.get("result_0.1.csv"))) {
             // if file doesnt exists, then create it
             if (!file.exists()) {
                 file.createNewFile();
@@ -46,6 +46,7 @@ public class matching_percentage_caculator {
             for (String line:  lines.collect(Collectors.toList()) )
                    { List<String> columns=Arrays.asList(pattern_line.split(line));
                    float counter=0, noresult=0;
+                   float P=0,R=0,F1=0;
                    if(!StringUtils.isBlank(columns.get(7)) && !columns.get(7).matches("[-]+") )
                    {
                        List<String> result=Arrays.asList(pattern_schema.split(columns.get(7)));
@@ -66,12 +67,17 @@ public class matching_percentage_caculator {
                            }
 
                        }
-                       counter=counter/(result.size()-noresult);
-
+                       P=counter/(result.size()-noresult);
+                      // R=counter/(result.size());
+                      // if(P==0 && R==0)
+                      // F1=0;
+                      // else
+                       //    F1=2*((P*R)/(P+R));
 
                    }
 
-                       bw.write(line+";"+counter+"\n");
+                      // bw.write(line+";"+P+";"+R+";"+F1+"\n");
+                       bw.write(line+";"+P+"\n");
                    }
             System.out.println(counter2);
 

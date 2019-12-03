@@ -162,7 +162,8 @@ else  //input is a JSON file with table per line
     Stream<String> test_set = InputReader.parse_wiki_tables_file(Config.TESTING_WIKI_FILENAME);
     System.out.println("***Done reading input files with missing headers ***");
 
-
+        long start = 0, end = 0;
+        start=System.currentTimeMillis();
     //calculate the similarity between the input table and all the webtables (output result)
     test_set.parallel().forEach(
             json_table ->
@@ -224,10 +225,12 @@ else  //input is a JSON file with table per line
                     }
                 }
                 write_to_disk_runtime(w_table, current.getHeaders(),topk_time,coherance_time, topk_time+coherance_time);
-                System.out.println("Table: " + current.get_id() + "--> done in " + topk_time + "/" + coherance_time + "with results? " + resultss);
+                //System.out.println("Table: " + current.get_id() + "--> done in " + topk_time + "/" + coherance_time + "with results? " + resultss);
 
             }
     );
+    end=System.currentTimeMillis();
+        System.out.println(((end- start) / 1000)+ " ***done testing***");
 }
     }
 
