@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 public class LAZO_test {
 
         public static void main(String[] args) {
-            int lazo_k=1;
+            int lazo_k=10;
             LazoIndex index = new LazoIndex(lazo_k);
             {
                 long startTime_index = 0, stopTime_index = 0, index_time = 0;
@@ -64,7 +64,7 @@ public class LAZO_test {
             {
                 long startTime_test = 0, stopTime_test = 0, test_time = 0;
                 startTime_test=System.currentTimeMillis();
-                test_set.parallel().forEach(
+                test_set.forEach(
                         json_table ->
                         {
                             long startTime = 0, stopTime = 0;
