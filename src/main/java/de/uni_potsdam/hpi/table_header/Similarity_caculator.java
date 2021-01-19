@@ -104,6 +104,14 @@ class Similarity_caculator {
             HLLWEBTABLES = (ArrayList<HTable>) Serializer.deserialize(Config.HYPERTABLE_FILENAME);
             System.out.println("***done deserialize htables***");
 
+            // extra code to collect the schemata in the training data for the revision
+           //TODO: comment out or remove
+          // HLLWEBTABLES.forEach(webtable ->
+          // {  String headers_str=webtable.getHeaders().toString()+"\n";
+          // System.out.print(headers_str);
+          // ResultWriter.add2Result(headers_str,Config.Output.HEADERS,"wiki");
+          // });
+
         } catch (FileNotFoundException e) {
 
 
