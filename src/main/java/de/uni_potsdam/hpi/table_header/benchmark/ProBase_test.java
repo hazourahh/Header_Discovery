@@ -8,17 +8,16 @@ import de.uni_potsdam.hpi.table_header.data_structures.wiki_table.WTable;
 import de.uni_potsdam.hpi.table_header.io.Config;
 import de.uni_potsdam.hpi.table_header.io.InputReader;
 import de.uni_potsdam.hpi.table_header.io.ResultWriter;
-import lazo.index.LazoIndex;
-import lazo.sketch.LazoSketch;
-import org.apache.commons.lang.StringUtils;
+import org.json.JSONObject;
 
-import javax.net.ssl.*;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.URI;
 import java.net.http.HttpResponse;
-import  com.google.gson.Gson;
+
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,7 +29,8 @@ import java.util.stream.Stream;
 public class ProBase_test {
 
         public static void main(String[] args) {
-             int topk_concept=5;
+             int topk_concept=5;// the top-k concept that we will use for each value to fidn the concept that represent the column
+
             //disable SSL and host verification
            // final Properties props = System.getProperties();
            // props.setProperty("jdk.internal.httpclient.disableHostnameVerification", Boolean.TRUE.toString());
@@ -54,44 +54,54 @@ public class ProBase_test {
                             //1-get wt table----------------------------------------
                             WTable w_table = WTable.fromString(json_table);
 
-                            //topk for each column
+                            //2-build the topk queue for each column
                             Topk_candidates results = new Topk_candidates(Config.k, w_table.getNumCols());
 
-                            //for each column search for results
+                            //for each column search for concepts
                             for (int i = 0; i < w_table.getNumCols(); i++) {
                                 Set column_value = w_table.getColumnValues(i);
                                 if (column_value.size() != 0) {
-                                    //for each value in the column
+                                    //for each value in the column find top concepts and scores from probase
                                     for (Object value : column_value) {
-                                        String url="https://concept.research.microsoft.com/api/Concept/ScoreByProb?instance=";
-                                        url+=value+"&topK="+topk_concept;
-                                        //get top-5 concept and insert them as candidates
-                                        HttpRequest request = HttpRequest.newBuilder()
-                                                .uri(URI.create(url))
-                                                .build();
-                                        HttpResponse<String> response = null;
-                                        try {
-                                            response = client.send(request,
-                                                    HttpResponse.BodyHandlers.ofString());
-                                           // Concept_Response concepts = new Gson().fromJson(response.body(), Concept_Response.class);
-                                            for (Header_Candidate concept : concepts.the_candidates)
-                                            {results.add_candidate(i, concept);}
+                                        //build the get request
+                                        String clean_value = value.toString().trim().replaceAll("\\p{Punct}", "").trim().replace(" ", "+");
+                                        if (!clean_value.isEmpty() && clean_value.length()<50 && isPureAscii(clean_value)) {
+                                            String url = "https://concept.research.microsoft.com/api/Concept/ScoreByProb?instance=";
+                                            url += clean_value + "&topK=" + topk_concept;
+                                            System.out.println(url);
+                                            HttpRequest request = HttpRequest.newBuilder()
+                                                    .uri(URI.create(url))
+                                                    .build();
+                                            HttpResponse<String> response = null;
+                                            try {
+                                                response = client.send(request,
+                                                        HttpResponse.BodyHandlers.ofString());
 
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
+                                                JSONObject jsonObject = new JSONObject(response.body());
+
+                                                if (jsonObject.length() > 0) {
+                                                    System.out.println(response.body());
+                                                    for (String concept : jsonObject.keySet()) {
+                                                        results.add_candidate(i, new Header_Candidate(concept.replace(" ", "_"), jsonObject.getDouble(concept)));
+                                                    }
+                                                }
+
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                            } catch (InterruptedException e) {
+                                                e.printStackTrace();
+                                            }
+
+
+                                            //results.add_candidate(i, new Header_Candidate(current.key.toString().replace(";",""), current.jcx));
                                         }
-
-                                        System.out.println(response.body());
-                                        //results.add_candidate(i, new Header_Candidate(current.key.toString().replace(";",""), current.jcx));
                                     }
                                 }
                             }
 
                             stopTime = System.currentTimeMillis();
                             topk_time = (stopTime - startTime) / 1000;
-                            //write_to_disk_phase1(w_table, w_table.getHeaders(), results);
+                            write_to_disk_phase1(w_table, w_table.getHeaders(), results);
                             //write_to_disk_runtime(w_table, w_table.getHeaders(), topk_time, coherance_time, topk_time + coherance_time);
 
                             //build a schema candidate
@@ -209,6 +219,8 @@ public class ProBase_test {
 
     }
 
+    public static boolean isPureAscii(String v) {
+        return Charset.forName("US-ASCII").newEncoder().canEncode(v);}
 }
 
 

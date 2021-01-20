@@ -29,7 +29,7 @@ public class source_table {
         File file = new File(out_file_name);
 
         try {
-            Stream<String> result_lines = Files.lines(Paths.get("headers_result.csv"));
+            Stream<String> result_lines = Files.lines(Paths.get("headers_result_0.4.csv"));
             Stream<String> train_tables_lines = Files.lines(Paths.get("headers_wiki.csv"));
             // if file doesnt exists, then create it
             if (!file.exists()) {
