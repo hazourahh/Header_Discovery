@@ -19,7 +19,8 @@ The system is a java maven project. So in order to build the sources, the follow
 1. Java JDK 1.8 or later
 2. Maven 3.6.3
 3. Git
-4. Palmetto (https://github.com/dice-group/Palmetto)
+4. Palmetto (https://github.com/dice-group/Palmetto):  for caculating coherence scores
+5. LAZO (https://github.com/mitdbg/lazo): as a baseline
 
 
 ## Datasets
